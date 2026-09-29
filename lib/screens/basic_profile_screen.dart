@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'address_screen.dart';
+
 class BasicProfileScreen extends StatefulWidget {
   final String phoneNumber;
 
@@ -61,29 +63,17 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
     final name = _nameController.text.trim();
 
     if (name.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Enter your full name.'),
-        ),
-      );
+      _showMessage('Enter your full name.');
       return;
     }
 
     if (_dobController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Select your date of birth.'),
-        ),
-      );
+      _showMessage('Select your date of birth.');
       return;
     }
 
     if (_selectedGender == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Select your gender.'),
-        ),
-      );
+      _showMessage('Select your gender.');
       return;
     }
 
@@ -103,11 +93,57 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
       _isLoading = false;
     });
 
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AddressScreen(),
+      ),
+    );
+  }
+
+  void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Next registration step will be connected here.',
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hintText,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE5E7EB),
         ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE5E7EB),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE86100),
+          width: 2,
+        ),
+      ),
+    );
+  }
+
+  Widget _label(String text) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        color: Color(0xFF171717),
       ),
     );
   }
@@ -141,9 +177,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
                 'This information will be used to create your Dojo Walker registration profile.',
                 style: TextStyle(
@@ -152,134 +186,39 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 32),
-
-              const Text(
-                'Full name',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF171717),
-                ),
-              ),
-
+              _label('Full name'),
               const SizedBox(height: 8),
-
               TextField(
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
-                decoration: InputDecoration(
+                decoration: _inputDecoration(
                   hintText: 'Enter your full name',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE86100),
-                      width: 2,
-                    ),
-                  ),
                 ),
               ),
-
               const SizedBox(height: 22),
-
-              const Text(
-                'Date of birth',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF171717),
-                ),
-              ),
-
+              _label('Date of birth'),
               const SizedBox(height: 8),
-
               TextField(
                 controller: _dobController,
                 readOnly: true,
                 onTap: _selectDateOfBirth,
-                decoration: InputDecoration(
+                decoration: _inputDecoration(
                   hintText: 'Select date of birth',
+                ).copyWith(
                   suffixIcon: const Icon(
                     Icons.calendar_today_outlined,
                     color: Color(0xFF6B7280),
                   ),
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE86100),
-                      width: 2,
-                    ),
-                  ),
                 ),
               ),
-
               const SizedBox(height: 22),
-
-              const Text(
-                'Gender',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Color(0xFF171717),
-                ),
-              ),
-
+              _label('Gender'),
               const SizedBox(height: 8),
-
               DropdownButtonFormField<String>(
                 initialValue: _selectedGender,
-                decoration: InputDecoration(
+                decoration: _inputDecoration(
                   hintText: 'Select gender',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE86100),
-                      width: 2,
-                    ),
-                  ),
                 ),
                 items: const [
                   DropdownMenuItem(
@@ -305,9 +244,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   });
                 },
               ),
-
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -339,9 +276,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                         ),
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Center(
                 child: Text(
                   'Mobile: +91 ${widget.phoneNumber}',
