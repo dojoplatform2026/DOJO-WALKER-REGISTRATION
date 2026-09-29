@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +24,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     super.initState();
 
     final data = context.read<RegistrationState>().data;
-
     _phoneController.text = data.phoneNumber;
   }
 
@@ -51,29 +51,123 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       _isLoading = true;
     });
 
-    await Future<void>.delayed(
-      const Duration(milliseconds: 500),
-    );
+    final fullPhoneNumber = '+91$phone';
 
-    if (!mounted) {
-      return;
-    }
+    try {
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: fullPhoneNumber,
+        timeout: const Duration(seconds: 60),
 
-    context.read<RegistrationState>().update(
-          phoneNumber: phone,
-        );
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          try {
+            await FirebaseAuth.instance.signInWithCredential(
+              credential,
+            );
+          } on FirebaseAuthException {
+            // Manual OTP entry can still continue if automatic
+            // verification is not completed successfully.
+          }
+        },
 
-    setState(() {
-      _isLoading = false;
-    });
+        verificationFailed: (FirebaseAuthException error) {
+          if (!mounted) {
+            return;
+          }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => OtpVerificationScreen(
-          phoneNumber: phone,
+          setState(() {
+            _isLoading = false;
+          });
+
+          String message = 'Unable to send OTP. Please try again.';
+
+          switch (error.code) {
+            case 'invalid-phone-number':
+              message = 'The mobile number is invalid.';
+              break;
+            case 'too-many-requests':
+              message =
+                  'Too many OTP requests. Please try again later.';
+              break;
+            case 'quota-exceeded':
+              message =
+                  'OTP service limit reached. Please try again later.';
+              break;
+            case 'operation-not-allowed':
+              message =
+                  'Phone authentication is not enabled in Firebase.';
+              break;
+            default:
+              if (error.message != null &&
+                  error.message!.trim().isNotEmpty) {
+                message = error.message!;
+              }
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(message)),
+          );
+        },
+
+        codeSent: (String verificationId, int? resendToken) {
+          if (!mounted) {
+            return;
+          }
+
+          context.read<RegistrationState>().update(
+                phoneNumber: phone,
+              );
+
+          setState(() {
+            _isLoading = false;
+          });
+
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => OtpVerificationScreen(
+                phoneNumber: phone,
+                verificationId: verificationId,
+              ),
+            ),
+          );
+        },
+
+        codeAutoRetrievalTimeout: (String verificationId) {
+          // The verification ID remains valid for manual OTP entry.
+        },
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            error.message ?? 'Unable to send OTP.',
+          ),
         ),
-      ),
-    );
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Something went wrong. Please try again.',
+          ),
+        ),
+      );
+    }
   }
 
   @override
