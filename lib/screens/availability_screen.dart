@@ -45,6 +45,21 @@ class _AvailabilityScreenState
     _selectedMorningSlots.addAll(data.morningSlots);
     _selectedEveningSlots.addAll(data.eveningSlots);
 
+    // Keep only one saved slot per shift.
+    if (_selectedMorningSlots.length > 1) {
+      final firstSlot = _selectedMorningSlots.first;
+      _selectedMorningSlots
+        ..clear()
+        ..add(firstSlot);
+    }
+
+    if (_selectedEveningSlots.length > 1) {
+      final firstSlot = _selectedEveningSlots.first;
+      _selectedEveningSlots
+        ..clear()
+        ..add(firstSlot);
+    }
+
     if (_workType == 'partTime') {
       if (_selectedMorningSlots.isNotEmpty) {
         _selectedShift = 'morning';
@@ -87,23 +102,19 @@ class _AvailabilityScreenState
     });
   }
 
-  void _toggleMorningSlot(String slot) {
+  void _selectMorningSlot(String slot) {
     setState(() {
-      if (_selectedMorningSlots.contains(slot)) {
-        _selectedMorningSlots.remove(slot);
-      } else {
-        _selectedMorningSlots.add(slot);
-      }
+      _selectedMorningSlots
+        ..clear()
+        ..add(slot);
     });
   }
 
-  void _toggleEveningSlot(String slot) {
+  void _selectEveningSlot(String slot) {
     setState(() {
-      if (_selectedEveningSlots.contains(slot)) {
-        _selectedEveningSlots.remove(slot);
-      } else {
-        _selectedEveningSlots.add(slot);
-      }
+      _selectedEveningSlots
+        ..clear()
+        ..add(slot);
     });
   }
 
@@ -126,7 +137,7 @@ class _AvailabilityScreenState
       if (_selectedShift == 'morning' &&
           _selectedMorningSlots.isEmpty) {
         _showMessage(
-          'Please select at least one morning slot.',
+          'Please select one morning slot.',
         );
         return false;
       }
@@ -134,7 +145,7 @@ class _AvailabilityScreenState
       if (_selectedShift == 'evening' &&
           _selectedEveningSlots.isEmpty) {
         _showMessage(
-          'Please select at least one evening slot.',
+          'Please select one evening slot.',
         );
         return false;
       }
@@ -143,14 +154,14 @@ class _AvailabilityScreenState
     if (_isFullTime) {
       if (_selectedMorningSlots.isEmpty) {
         _showMessage(
-          'Please select at least one morning slot.',
+          'Please select one morning slot.',
         );
         return false;
       }
 
       if (_selectedEveningSlots.isEmpty) {
         _showMessage(
-          'Please select at least one evening slot.',
+          'Please select one evening slot.',
         );
         return false;
       }
@@ -223,7 +234,6 @@ class _AvailabilityScreenState
     context.read<RegistrationState>().update(
           workType: _workType,
           shifts: shifts,
-          availableDays: const [],
           morningSlots:
               List<String>.from(_selectedMorningSlots),
           eveningSlots:
@@ -408,8 +418,8 @@ class _AvailabilityScreenState
           children: [
             Icon(
               selected
-                  ? Icons.check_box
-                  : Icons.check_box_outline_blank,
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
               color: selected
                   ? const Color(0xFFE86100)
                   : const Color(0xFF9CA3AF),
@@ -442,7 +452,8 @@ class _AvailabilityScreenState
     String subtitle,
   ) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         Text(
           title,
@@ -492,7 +503,9 @@ class _AvailabilityScreenState
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               const Text(
                 'Choose the work schedule you can commit to. '
                 'Every selected slot is fixed for 4 hours.',
@@ -525,7 +538,7 @@ class _AvailabilityScreenState
                 value: 'fullTime',
                 title: 'Full-time',
                 subtitle:
-                    'Morning and Evening are both required.',
+                    'Choose one Morning and one Evening slot.',
               ),
 
               if (_isPartTime) ...[
@@ -564,8 +577,8 @@ class _AvailabilityScreenState
                 const SizedBox(height: 28),
 
                 _sectionTitle(
-                  'Morning Slots',
-                  'Choose the 4-hour slots you can work.',
+                  'Morning Slot',
+                  'Choose one fixed 4-hour slot.',
                 ),
 
                 const SizedBox(height: 12),
@@ -578,7 +591,7 @@ class _AvailabilityScreenState
                       slot,
                     ),
                     onTap: () {
-                      _toggleMorningSlot(slot);
+                      _selectMorningSlot(slot);
                     },
                   ),
                 ),
@@ -589,8 +602,8 @@ class _AvailabilityScreenState
                 const SizedBox(height: 28),
 
                 _sectionTitle(
-                  'Evening Slots',
-                  'Choose the 4-hour slots you can work.',
+                  'Evening Slot',
+                  'Choose one fixed 4-hour slot.',
                 ),
 
                 const SizedBox(height: 12),
@@ -603,7 +616,7 @@ class _AvailabilityScreenState
                       slot,
                     ),
                     onTap: () {
-                      _toggleEveningSlot(slot);
+                      _selectEveningSlot(slot);
                     },
                   ),
                 ),
@@ -613,8 +626,8 @@ class _AvailabilityScreenState
                 const SizedBox(height: 28),
 
                 _sectionTitle(
-                  'Morning Slots',
-                  'Select the morning slots you can work.',
+                  'Morning Slot',
+                  'Choose one fixed 4-hour morning slot.',
                 ),
 
                 const SizedBox(height: 12),
@@ -627,7 +640,7 @@ class _AvailabilityScreenState
                       slot,
                     ),
                     onTap: () {
-                      _toggleMorningSlot(slot);
+                      _selectMorningSlot(slot);
                     },
                   ),
                 ),
@@ -635,8 +648,8 @@ class _AvailabilityScreenState
                 const SizedBox(height: 18),
 
                 _sectionTitle(
-                  'Evening Slots',
-                  'Select the evening slots you can work.',
+                  'Evening Slot',
+                  'Choose one fixed 4-hour evening slot.',
                 ),
 
                 const SizedBox(height: 12),
@@ -649,7 +662,7 @@ class _AvailabilityScreenState
                       slot,
                     ),
                     onTap: () {
-                      _toggleEveningSlot(slot);
+                      _selectEveningSlot(slot);
                     },
                   ),
                 ),
