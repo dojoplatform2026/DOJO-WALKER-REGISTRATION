@@ -1,15 +1,6 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
-import 'firebase_options.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+void main() {
   runApp(const DojoWalkerRegistrationApp());
 }
 
@@ -88,9 +79,7 @@ class RegistrationHomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: () {
-                    // Registration flow will be added next.
-                  },
+                  onPressed: () {},
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
