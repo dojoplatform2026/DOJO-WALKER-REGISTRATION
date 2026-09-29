@@ -8,10 +8,9 @@ class ApplicationSubmittedScreen extends StatelessWidget {
     required String description,
     required bool completed,
     required bool current,
+    required bool last,
   }) {
-    final Color iconColor = completed || current
-        ? const Color(0xFFE86100)
-        : const Color(0xFF9CA3AF);
+    final isActive = completed || current;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -19,13 +18,18 @@ class ApplicationSubmittedScreen extends StatelessWidget {
         Column(
           children: [
             Container(
-              width: 36,
-              height: 36,
+              width: 38,
+              height: 38,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: completed || current
+                color: isActive
                     ? const Color(0xFFFFF1E8)
                     : const Color(0xFFF3F4F6),
+                border: Border.all(
+                  color: isActive
+                      ? const Color(0xFFE86100)
+                      : const Color(0xFFE5E7EB),
+                ),
               ),
               child: Icon(
                 completed
@@ -34,13 +38,15 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                         ? Icons.access_time
                         : Icons.circle_outlined,
                 size: 20,
-                color: iconColor,
+                color: isActive
+                    ? const Color(0xFFE86100)
+                    : const Color(0xFF9CA3AF),
               ),
             ),
-            if (title != 'Admin Review')
+            if (!last)
               Container(
                 width: 2,
-                height: 42,
+                height: 52,
                 color: completed
                     ? const Color(0xFFE86100)
                     : const Color(0xFFE5E7EB),
@@ -50,16 +56,17 @@ class ApplicationSubmittedScreen extends StatelessWidget {
         const SizedBox(width: 14),
         Expanded(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 22),
+            padding: const EdgeInsets.only(bottom: 24),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: completed || current
+                    color: isActive
                         ? const Color(0xFF171717)
                         : const Color(0xFF6B7280),
                   ),
@@ -82,10 +89,11 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF1E8),
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius:
+                          BorderRadius.circular(20),
                     ),
                     child: const Text(
-                      'In Progress',
+                      'Currently in progress',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
@@ -102,15 +110,25 @@ class ApplicationSubmittedScreen extends StatelessWidget {
     );
   }
 
+  void _viewApplication(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Application details will be connected after backend setup.',
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         backgroundColor: Colors.white,
         foregroundColor: const Color(0xFF171717),
         elevation: 0,
-        automaticallyImplyLeading: false,
         title: const Text(
           'Application Status',
           style: TextStyle(
@@ -123,18 +141,18 @@ class ApplicationSubmittedScreen extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              const SizedBox(height: 20),
+              const SizedBox(height: 12),
 
               Container(
-                width: 78,
-                height: 78,
+                width: 82,
+                height: 82,
                 decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFFFFF1E8),
                 ),
                 child: const Icon(
                   Icons.check_circle_outline,
-                  size: 48,
+                  size: 52,
                   color: Color(0xFFE86100),
                 ),
               ),
@@ -154,7 +172,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
               const SizedBox(height: 10),
 
               const Text(
-                'Your Dojo Walker registration has been submitted successfully.',
+                'Your Dojo Walker registration application has been submitted successfully.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16,
@@ -163,7 +181,63 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 22),
+
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Application ID',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Color(0xFF6B7280),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'DW-REG-PENDING',
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: Color(0xFF171717),
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFFFF1E8),
+                        borderRadius:
+                            BorderRadius.circular(20),
+                      ),
+                      child: const Text(
+                        'PENDING VERIFICATION',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w800,
+                          color: Color(0xFFE86100),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 18),
 
               Container(
                 width: double.infinity,
@@ -175,22 +249,22 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     color: const Color(0xFFE5E7EB),
                   ),
                 ),
-                child: const Column(
+                child: const Row(
                   children: [
-                    Text(
-                      'Application Status',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF6B7280),
-                      ),
+                    Icon(
+                      Icons.calendar_today_outlined,
+                      size: 20,
+                      color: Color(0xFFE86100),
                     ),
-                    SizedBox(height: 6),
-                    Text(
-                      'PENDING VERIFICATION',
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFFE86100),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        'Submitted successfully. Verification will begin after backend submission is connected.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          height: 1.4,
+                          color: Color(0xFF4B5563),
+                        ),
                       ),
                     ),
                   ],
@@ -204,7 +278,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                 child: Text(
                   'Verification Progress',
                   style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 19,
                     fontWeight: FontWeight.w800,
                     color: Color(0xFF171717),
                   ),
@@ -219,14 +293,16 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     'Your registration information has been received.',
                 completed: true,
                 current: false,
+                last: false,
               ),
 
               _statusStep(
                 title: 'Document Verification',
                 description:
-                    'Our team will verify your submitted documents.',
+                    'Your Aadhaar, PAN and submitted documents will be verified.',
                 completed: false,
                 current: true,
+                last: false,
               ),
 
               _statusStep(
@@ -235,6 +311,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     'An interview may be scheduled if required.',
                 completed: false,
                 current: false,
+                last: false,
               ),
 
               _statusStep(
@@ -243,6 +320,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     'Walker skills and pet-handling ability may be assessed.',
                 completed: false,
                 current: false,
+                last: false,
               ),
 
               _statusStep(
@@ -251,6 +329,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     'Required verification checks will be completed.',
                 completed: false,
                 current: false,
+                last: false,
               ),
 
               _statusStep(
@@ -259,9 +338,10 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     'Final application review and approval.',
                 completed: false,
                 current: false,
+                last: true,
               ),
 
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
 
               Container(
                 width: double.infinity,
@@ -271,7 +351,8 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -298,14 +379,18 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 52,
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _viewApplication(context);
+                  },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFE86100),
+                    foregroundColor:
+                        const Color(0xFFE86100),
                     side: const BorderSide(
                       color: Color(0xFFE86100),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: const Text(
@@ -315,6 +400,16 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                ),
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                'Dojo Walker Registration',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color(0xFF9CA3AF),
                 ),
               ),
             ],
