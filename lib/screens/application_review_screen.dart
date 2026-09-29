@@ -214,25 +214,6 @@ class _ApplicationReviewScreenState
     return slots.map(_formatSlot).join(', ');
   }
 
-  String _walkTypesText(List<String> walkTypes) {
-    if (walkTypes.isEmpty) {
-      return 'None selected';
-    }
-
-    return walkTypes.map((type) {
-      switch (type) {
-        case 'monthlyWalk':
-          return 'Monthly Walk — Permanent';
-        case 'temporaryWalk':
-          return 'Temporary Walk';
-        case 'instaWalk':
-          return 'Insta Walk';
-        default:
-          return type;
-      }
-    }).join(', ');
-  }
-
   @override
   Widget build(BuildContext context) {
     final data = context.watch<RegistrationState>().data;
@@ -369,10 +350,6 @@ class _ApplicationReviewScreenState
                   _row(
                     label: 'Evening slots',
                     value: _slotsText(data.eveningSlots),
-                  ),
-                  _row(
-                    label: 'Walk types',
-                    value: _walkTypesText(data.walkTypes),
                   ),
                 ],
               ),
