@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../services/registration_service.dart';
 import '../state/registration_state.dart';
 import 'application_submitted_screen.dart';
 
@@ -17,28 +18,54 @@ class _ApplicationReviewScreenState
   bool _isSubmitting = false;
 
   Future<void> _submitApplication() async {
+    if (_isSubmitting) {
+      return;
+    }
+
+    final data = context.read<RegistrationState>().data;
+
     setState(() {
       _isSubmitting = true;
     });
 
-    await Future<void>.delayed(
-      const Duration(milliseconds: 700),
-    );
+    try {
+      final applicationId =
+          await RegistrationService.submitApplication(data);
 
-    if (!mounted) {
-      return;
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (_) => ApplicationSubmittedScreen(
+            applicationId: applicationId,
+          ),
+        ),
+        (route) => false,
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isSubmitting = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Application submission failed. Please try again.',
+          ),
+          backgroundColor: const Color(0xFFB91C1C),
+        ),
+      );
     }
-
-    setState(() {
-      _isSubmitting = false;
-    });
-
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(
-        builder: (_) => const ApplicationSubmittedScreen(),
-      ),
-      (route) => false,
-    );
   }
 
   Widget _section({
@@ -193,8 +220,8 @@ class _ApplicationReviewScreenState
       }
 
       final minute = timeParts[1];
-
       final isPm = hour >= 12;
+
       final displayHour =
           hour == 0 ? 12 : (hour > 12 ? hour - 12 : hour);
 
@@ -256,7 +283,6 @@ class _ApplicationReviewScreenState
               ),
               const SizedBox(height: 28),
 
-              // Basic Profile
               _section(
                 title: 'Basic Profile',
                 children: [
@@ -281,7 +307,6 @@ class _ApplicationReviewScreenState
                 ],
               ),
 
-              // Address
               _section(
                 title: 'Address',
                 children: [
@@ -308,7 +333,6 @@ class _ApplicationReviewScreenState
                 ],
               ),
 
-              // Experience
               _section(
                 title: 'Experience',
                 children: [
@@ -331,7 +355,6 @@ class _ApplicationReviewScreenState
                 ],
               ),
 
-              // Availability
               _section(
                 title: 'Availability',
                 children: [
@@ -354,7 +377,6 @@ class _ApplicationReviewScreenState
                 ],
               ),
 
-              // Documents
               _section(
                 title: 'Documents',
                 children: [
@@ -377,7 +399,6 @@ class _ApplicationReviewScreenState
                 ],
               ),
 
-              // Emergency Contact
               _section(
                 title: 'Emergency Contact',
                 children: [
@@ -435,9 +456,8 @@ class _ApplicationReviewScreenState
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isSubmitting
-                      ? null
-                      : _submitApplication,
+                  onPressed:
+                      _isSubmitting ? null : _submitApplication,
                   style: FilledButton.styleFrom(
                     backgroundColor:
                         const Color(0xFFE86100),
