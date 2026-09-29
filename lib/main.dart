@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'screens/phone_login_screen.dart';
+import 'state/registration_state.dart';
 
 void main() {
-  runApp(const DojoWalkerRegistrationApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => RegistrationState(),
+      child: const DojoWalkerRegistrationApp(),
+    ),
+  );
 }
 
 class DojoWalkerRegistrationApp extends StatelessWidget {
@@ -20,7 +27,8 @@ class DojoWalkerRegistrationApp extends StatelessWidget {
           seedColor: const Color(0xFFE86100),
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        scaffoldBackgroundColor:
+            const Color(0xFFF8F9FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Color(0xFF171717),
@@ -59,10 +67,10 @@ class RegistrationHomeScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Spacer(),
-
               const Text(
                 'Become a Dojo Walker',
                 style: TextStyle(
@@ -71,9 +79,7 @@ class RegistrationHomeScreen extends StatelessWidget {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
                 'Register with Dojo Walk and start your walker onboarding journey.',
                 style: TextStyle(
@@ -82,9 +88,7 @@ class RegistrationHomeScreen extends StatelessWidget {
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -93,10 +97,12 @@ class RegistrationHomeScreen extends StatelessWidget {
                     _startRegistration(context);
                   },
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: const Text(
@@ -108,9 +114,7 @@ class RegistrationHomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const SizedBox(height: 16),
-
               const Center(
                 child: Text(
                   'Dojo Walker Registration',
@@ -120,7 +124,6 @@ class RegistrationHomeScreen extends StatelessWidget {
                   ),
                 ),
               ),
-
               const Spacer(),
             ],
           ),
