@@ -1,10 +1,15 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'screens/phone_login_screen.dart';
 import 'state/registration_state.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp();
+
   runApp(
     ChangeNotifierProvider(
       create: (_) => RegistrationState(),
@@ -27,8 +32,7 @@ class DojoWalkerRegistrationApp extends StatelessWidget {
           seedColor: const Color(0xFFE86100),
           brightness: Brightness.light,
         ),
-        scaffoldBackgroundColor:
-            const Color(0xFFF8F9FA),
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
         appBarTheme: const AppBarTheme(
           backgroundColor: Colors.white,
           foregroundColor: Color(0xFF171717),
@@ -67,8 +71,7 @@ class RegistrationHomeScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Spacer(),
               const Text(
@@ -97,12 +100,10 @@ class RegistrationHomeScreen extends StatelessWidget {
                     _startRegistration(context);
                   },
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: const Text(
