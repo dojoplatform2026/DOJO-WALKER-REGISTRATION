@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../state/registration_state.dart';
@@ -50,6 +51,23 @@ class _AddressScreenState extends State<AddressScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _addressController.text = data.address;
+    _areaController.text = data.area;
+    _cityController.text = data.city;
+    _pincodeController.text = data.pinCode;
+
+    if (data.state.isNotEmpty &&
+        _states.contains(data.state)) {
+      _selectedState = data.state;
+    }
+  }
+
+  @override
   void dispose() {
     _addressController.dispose();
     _areaController.dispose();
@@ -93,7 +111,7 @@ class _AddressScreenState extends State<AddressScreen> {
       return;
     }
 
-    if (pincode.length != 6) {
+    if (!RegExp(r'^\d{6}$').hasMatch(pincode)) {
       _showMessage('Enter a valid 6-digit PIN code.');
       return;
     }
@@ -188,8 +206,7 @@ class _AddressScreenState extends State<AddressScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Where do you live?',
@@ -214,11 +231,9 @@ class _AddressScreenState extends State<AddressScreen> {
               TextField(
                 controller: _addressController,
                 maxLines: 3,
-                textCapitalization:
-                    TextCapitalization.sentences,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: _inputDecoration(
-                  hintText:
-                      'House / flat, street, landmark',
+                  hintText: 'House / flat, street, landmark',
                 ),
               ),
               const SizedBox(height: 22),
@@ -226,11 +241,9 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _areaController,
-                textCapitalization:
-                    TextCapitalization.words,
+                textCapitalization: TextCapitalization.words,
                 decoration: _inputDecoration(
-                  hintText:
-                      'Enter your area or locality',
+                  hintText: 'Enter your area or locality',
                 ),
               ),
               const SizedBox(height: 22),
@@ -238,8 +251,7 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _cityController,
-                textCapitalization:
-                    TextCapitalization.words,
+                textCapitalization: TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter your city',
                 ),
@@ -252,14 +264,12 @@ class _AddressScreenState extends State<AddressScreen> {
                 decoration: _inputDecoration(
                   hintText: 'Select your state',
                 ),
-                items: _states.map(
-                  (state) {
-                    return DropdownMenuItem<String>(
-                      value: state,
-                      child: Text(state),
-                    );
-                  },
-                ).toList(),
+                items: _states.map((state) {
+                  return DropdownMenuItem<String>(
+                    value: state,
+                    child: Text(state),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedState = value;
@@ -273,6 +283,9 @@ class _AddressScreenState extends State<AddressScreen> {
                 controller: _pincodeController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 decoration: _inputDecoration(
                   hintText: 'Enter 6-digit PIN code',
                 ).copyWith(
@@ -284,25 +297,21 @@ class _AddressScreenState extends State<AddressScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
+                  onPressed: _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
