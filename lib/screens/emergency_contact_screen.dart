@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'application_review_screen.dart';
 
 class EmergencyContactScreen extends StatefulWidget {
@@ -12,57 +14,58 @@ class EmergencyContactScreen extends StatefulWidget {
 
 class _EmergencyContactScreenState
     extends State<EmergencyContactScreen> {
-  final TextEditingController _nameController =
-      TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
-  final TextEditingController _phoneController =
-      TextEditingController();
+  final _nameController = TextEditingController();
+  final _phoneController = TextEditingController();
 
-  final TextEditingController _relationController =
-      TextEditingController();
+  String _relationship = '';
+  bool _isSaving = false;
 
-  bool _isLoading = false;
+  final List<String> _relationships = [
+    'Father',
+    'Mother',
+    'Brother',
+    'Sister',
+    'Spouse',
+    'Friend',
+    'Other',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _nameController.text = data.emergencyContactName;
+    _phoneController.text = data.emergencyContactPhone;
+    _relationship = data.emergencyContactRelationship;
+  }
 
   @override
   void dispose() {
     _nameController.dispose();
     _phoneController.dispose();
-    _relationController.dispose();
     super.dispose();
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-      ),
-    );
-  }
-
   Future<void> _continue() async {
-    final name = _nameController.text.trim();
-    final phone = _phoneController.text.trim();
-    final relation = _relationController.text.trim();
-
-    if (name.isEmpty) {
-      _showMessage('Enter emergency contact name.');
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    if (phone.length != 10) {
-      _showMessage('Enter a valid 10-digit mobile number.');
-      return;
-    }
-
-    if (relation.isEmpty) {
-      _showMessage(
-        'Enter your relationship with this person.',
+    if (_relationship.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please select relationship'),
+        ),
       );
       return;
     }
 
     setState(() {
-      _isLoading = true;
+      _isSaving = true;
     });
 
     await Future<void>.delayed(
@@ -73,8 +76,17 @@ class _EmergencyContactScreenState
       return;
     }
 
+    context.read<RegistrationState>().update(
+          emergencyContactName:
+              _nameController.text.trim(),
+          emergencyContactPhone:
+              _phoneController.text.trim(),
+          emergencyContactRelationship:
+              _relationship,
+        );
+
     setState(() {
-      _isLoading = false;
+      _isSaving = false;
     });
 
     Navigator.of(context).push(
@@ -85,10 +97,12 @@ class _EmergencyContactScreenState
   }
 
   InputDecoration _inputDecoration({
-    required String hintText,
+    required String label,
+    required String hint,
   }) {
     return InputDecoration(
-      hintText: hintText,
+      labelText: label,
+      hintText: hint,
       filled: true,
       fillColor: Colors.white,
       border: OutlineInputBorder(
@@ -107,19 +121,8 @@ class _EmergencyContactScreenState
         borderRadius: BorderRadius.circular(14),
         borderSide: const BorderSide(
           color: Color(0xFFE86100),
-          width: 2,
+          width: 1.5,
         ),
-      ),
-    );
-  }
-
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF171717),
       ),
     );
   }
@@ -127,11 +130,7 @@ class _EmergencyContactScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF171717),
-        elevation: 0,
         title: const Text(
           'Emergency Contact',
           style: TextStyle(
@@ -140,145 +139,191 @@ class _EmergencyContactScreenState
         ),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Add an emergency contact',
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF171717),
+        child: Form(
+          key: _formKey,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Emergency Contact',
+                  style: TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.w800,
+                    color: Color(0xFF171717),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 12),
-              const Text(
-                'Provide someone we can contact in case of an emergency related to your walker activity.',
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.5,
-                  color: Color(0xFF4B5563),
+                const SizedBox(height: 8),
+                const Text(
+                  'Add someone we can contact in case of an emergency.',
+                  style: TextStyle(
+                    fontSize: 15,
+                    height: 1.5,
+                    color: Color(0xFF6B7280),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 30),
+                const SizedBox(height: 28),
 
-              _label('Contact name'),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _nameController,
-                textCapitalization:
-                    TextCapitalization.words,
-                decoration: _inputDecoration(
-                  hintText: 'Enter full name',
+                const Text(
+                  'Contact Name',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF171717),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
 
-              const SizedBox(height: 22),
+                TextFormField(
+                  controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
+                  decoration: _inputDecoration(
+                    label: 'Full Name',
+                    hint: 'Enter emergency contact name',
+                  ),
+                  validator: (value) {
+                    final text = value?.trim() ?? '';
 
-              _label('Mobile number'),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _phoneController,
-                keyboardType: TextInputType.phone,
-                maxLength: 10,
-                decoration: _inputDecoration(
-                  hintText: 'Enter 10-digit number',
-                ).copyWith(
-                  prefixText: '+91 ',
-                  counterText: '',
+                    if (text.isEmpty) {
+                      return 'Please enter contact name';
+                    }
+
+                    if (text.length < 2) {
+                      return 'Please enter a valid name';
+                    }
+
+                    return null;
+                  },
                 ),
-              ),
 
-              const SizedBox(height: 22),
+                const SizedBox(height: 20),
 
-              _label('Relationship'),
-              const SizedBox(height: 8),
-              TextField(
-                controller: _relationController,
-                textCapitalization:
-                    TextCapitalization.words,
-                decoration: _inputDecoration(
-                  hintText:
-                      'Example: Father, Mother, Brother',
+                const Text(
+                  'Mobile Number',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF171717),
+                  ),
                 ),
-              ),
+                const SizedBox(height: 8),
 
-              const SizedBox(height: 28),
-
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1E8),
-                  borderRadius:
-                      BorderRadius.circular(14),
-                ),
-                child: const Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.shield_outlined,
-                      size: 20,
-                      color: Color(0xFFE86100),
-                    ),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        'This information is intended for emergency and safety purposes and should be kept private.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.5,
-                          color: Color(0xFF4B5563),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 32),
-
-              SizedBox(
-                width: double.infinity,
-                height: 54,
-                child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
-                  style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
-                    foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        const Color(0xFFFFC7A3),
-                    shape:
-                        RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                TextFormField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  maxLength: 10,
+                  decoration: _inputDecoration(
+                    label: '10-digit Mobile Number',
+                    hint: 'Enter mobile number',
+                  ).copyWith(
+                    counterText: '',
+                    prefixText: '+91 ',
+                    prefixStyle: const TextStyle(
+                      color: Color(0xFF171717),
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          width: 22,
-                          height: 22,
-                          child:
-                              CircularProgressIndicator(
-                            strokeWidth: 2.5,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Review Application',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight:
-                                FontWeight.w700,
-                          ),
-                        ),
+                  validator: (value) {
+                    final text = value?.trim() ?? '';
+
+                    if (text.isEmpty) {
+                      return 'Please enter mobile number';
+                    }
+
+                    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(text)) {
+                      return 'Enter a valid 10-digit mobile number';
+                    }
+
+                    return null;
+                  },
                 ),
-              ),
-            ],
+
+                const SizedBox(height: 20),
+
+                const Text(
+                  'Relationship',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF171717),
+                  ),
+                ),
+                const SizedBox(height: 8),
+
+                DropdownButtonFormField<String>(
+                  initialValue: _relationship.isEmpty
+                      ? null
+                      : _relationship,
+                  decoration: _inputDecoration(
+                    label: 'Relationship',
+                    hint: 'Select relationship',
+                  ),
+                  items: _relationships.map((relationship) {
+                    return DropdownMenuItem<String>(
+                      value: relationship,
+                      child: Text(relationship),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _relationship = value ?? '';
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 32),
+
+                SizedBox(
+                  width: double.infinity,
+                  height: 54,
+                  child: FilledButton(
+                    onPressed: _isSaving ? null : _continue,
+                    style: FilledButton.styleFrom(
+                      backgroundColor: const Color(0xFFE86100),
+                      foregroundColor: Colors.white,
+                      disabledBackgroundColor:
+                          const Color(0xFFE5E7EB),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: _isSaving
+                        ? const SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(
+                                Colors.white,
+                              ),
+                            ),
+                          )
+                        : const Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                const Center(
+                  child: Text(
+                    'Your emergency contact information will be kept secure.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
