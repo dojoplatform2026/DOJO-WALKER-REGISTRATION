@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'application_review_screen.dart';
+
 class EmergencyContactScreen extends StatefulWidget {
   const EmergencyContactScreen({super.key});
 
@@ -12,8 +14,10 @@ class _EmergencyContactScreenState
     extends State<EmergencyContactScreen> {
   final TextEditingController _nameController =
       TextEditingController();
+
   final TextEditingController _phoneController =
       TextEditingController();
+
   final TextEditingController _relationController =
       TextEditingController();
 
@@ -51,7 +55,9 @@ class _EmergencyContactScreenState
     }
 
     if (relation.isEmpty) {
-      _showMessage('Enter your relationship with this person.');
+      _showMessage(
+        'Enter your relationship with this person.',
+      );
       return;
     }
 
@@ -71,8 +77,10 @@ class _EmergencyContactScreenState
       _isLoading = false;
     });
 
-    _showMessage(
-      'Next registration step will be connected here.',
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const ApplicationReviewScreen(),
+      ),
     );
   }
 
@@ -145,9 +153,7 @@ class _EmergencyContactScreenState
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
                 'Provide someone we can contact in case of an emergency related to your walker activity.',
                 style: TextStyle(
@@ -156,16 +162,14 @@ class _EmergencyContactScreenState
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 30),
 
               _label('Contact name'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _nameController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter full name',
                 ),
@@ -174,9 +178,7 @@ class _EmergencyContactScreenState
               const SizedBox(height: 22),
 
               _label('Mobile number'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
@@ -192,14 +194,14 @@ class _EmergencyContactScreenState
               const SizedBox(height: 22),
 
               _label('Relationship'),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _relationController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
-                  hintText: 'Example: Father, Mother, Brother',
+                  hintText:
+                      'Example: Father, Mother, Brother',
                 ),
               ),
 
@@ -209,10 +211,12 @@ class _EmergencyContactScreenState
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1E8),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                 ),
                 child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.shield_outlined,
@@ -240,30 +244,36 @@ class _EmergencyContactScreenState
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
                         )
                       : const Text(
-                          'Continue',
+                          'Review Application',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            fontWeight:
+                                FontWeight.w700,
                           ),
                         ),
                 ),
