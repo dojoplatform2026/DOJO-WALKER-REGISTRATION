@@ -58,8 +58,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 24),
             child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -89,8 +88,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFFFF1E8),
-                      borderRadius:
-                          BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: const Text(
                       'Currently in progress',
@@ -114,7 +112,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
-          'Application details will be connected after backend setup.',
+          'Application details will be available soon.',
         ),
       ),
     );
@@ -214,15 +212,13 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 14),
                     Container(
-                      padding:
-                          const EdgeInsets.symmetric(
+                      padding: const EdgeInsets.symmetric(
                         horizontal: 14,
                         vertical: 7,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFFFF1E8),
-                        borderRadius:
-                            BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: const Text(
                         'PENDING VERIFICATION',
@@ -252,14 +248,14 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                 child: const Row(
                   children: [
                     Icon(
-                      Icons.calendar_today_outlined,
+                      Icons.schedule_outlined,
                       size: 20,
                       color: Color(0xFFE86100),
                     ),
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Submitted successfully. Verification will begin after backend submission is connected.',
+                        'Your application is now pending verification. You will be notified when your status changes.',
                         style: TextStyle(
                           fontSize: 13,
                           height: 1.4,
@@ -301,7 +297,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                 description:
                     'Your Aadhaar, PAN and submitted documents will be verified.',
                 completed: false,
-                current: true,
+                current: false,
                 last: false,
               ),
 
@@ -351,8 +347,7 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -383,14 +378,12 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                     _viewApplication(context);
                   },
                   style: OutlinedButton.styleFrom(
-                    foregroundColor:
-                        const Color(0xFFE86100),
+                    foregroundColor: const Color(0xFFE86100),
                     side: const BorderSide(
                       color: Color(0xFFE86100),
                     ),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: const Text(
