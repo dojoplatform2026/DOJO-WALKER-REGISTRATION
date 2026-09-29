@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'experience_screen.dart';
 
 class AddressScreen extends StatefulWidget {
@@ -69,6 +71,7 @@ class _AddressScreenState extends State<AddressScreen> {
     final area = _areaController.text.trim();
     final city = _cityController.text.trim();
     final pincode = _pincodeController.text.trim();
+    final state = _selectedState;
 
     if (address.isEmpty) {
       _showMessage('Enter your complete address.');
@@ -85,7 +88,7 @@ class _AddressScreenState extends State<AddressScreen> {
       return;
     }
 
-    if (_selectedState == null) {
+    if (state == null) {
       _showMessage('Select your state.');
       return;
     }
@@ -106,6 +109,14 @@ class _AddressScreenState extends State<AddressScreen> {
     if (!mounted) {
       return;
     }
+
+    context.read<RegistrationState>().update(
+          address: address,
+          area: area,
+          city: city,
+          state: state,
+          pinCode: pincode,
+        );
 
     setState(() {
       _isLoading = false;
@@ -177,7 +188,8 @@ class _AddressScreenState extends State<AddressScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Where do you live?',
@@ -202,9 +214,11 @@ class _AddressScreenState extends State<AddressScreen> {
               TextField(
                 controller: _addressController,
                 maxLines: 3,
-                textCapitalization: TextCapitalization.sentences,
+                textCapitalization:
+                    TextCapitalization.sentences,
                 decoration: _inputDecoration(
-                  hintText: 'House / flat, street, landmark',
+                  hintText:
+                      'House / flat, street, landmark',
                 ),
               ),
               const SizedBox(height: 22),
@@ -212,9 +226,11 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _areaController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
-                  hintText: 'Enter your area or locality',
+                  hintText:
+                      'Enter your area or locality',
                 ),
               ),
               const SizedBox(height: 22),
@@ -222,7 +238,8 @@ class _AddressScreenState extends State<AddressScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _cityController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter your city',
                 ),
@@ -267,20 +284,25 @@ class _AddressScreenState extends State<AddressScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFFFFC7A3),
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
