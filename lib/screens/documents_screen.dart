@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'availability_screen.dart';
+
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
 
@@ -8,14 +10,17 @@ class DocumentsScreen extends StatefulWidget {
 }
 
 class _DocumentsScreenState extends State<DocumentsScreen> {
-  bool _aadhaarUploaded = false;
-  bool _panUploaded = false;
-  bool _photoUploaded = false;
-  bool _isLoading = false;
+  bool _aadhaarFrontAdded = false;
+  bool _aadhaarBackAdded = false;
+  bool _panAdded = false;
+  bool _profilePhotoAdded = false;
 
-  Future<void> _uploadDocument(String documentName) async {
+  bool _isLoading = false;
+  String? _loadingDocument;
+
+  Future<void> _addDocument(String document) async {
     setState(() {
-      _isLoading = true;
+      _loadingDocument = document;
     });
 
     await Future<void>.delayed(
@@ -27,36 +32,42 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     }
 
     setState(() {
-      _isLoading = false;
-
-      if (documentName == 'Aadhaar') {
-        _aadhaarUploaded = true;
-      } else if (documentName == 'PAN') {
-        _panUploaded = true;
-      } else if (documentName == 'Photo') {
-        _photoUploaded = true;
+      switch (document) {
+        case 'Aadhaar Front':
+          _aadhaarFrontAdded = true;
+          break;
+        case 'Aadhaar Back':
+          _aadhaarBackAdded = true;
+          break;
+        case 'PAN':
+          _panAdded = true;
+          break;
+        case 'Profile Photo':
+          _profilePhotoAdded = true;
+          break;
       }
-    });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$documentName added for verification.'),
-      ),
-    );
+      _loadingDocument = null;
+    });
   }
 
   Future<void> _continue() async {
-    if (!_aadhaarUploaded) {
-      _showMessage('Add your Aadhaar document.');
+    if (!_aadhaarFrontAdded) {
+      _showMessage('Add the front side of your Aadhaar.');
       return;
     }
 
-    if (!_panUploaded) {
+    if (!_aadhaarBackAdded) {
+      _showMessage('Add the back side of your Aadhaar.');
+      return;
+    }
+
+    if (!_panAdded) {
       _showMessage('Add your PAN document.');
       return;
     }
 
-    if (!_photoUploaded) {
+    if (!_profilePhotoAdded) {
       _showMessage('Add your profile photo.');
       return;
     }
@@ -77,8 +88,10 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       _isLoading = false;
     });
 
-    _showMessage(
-      'Next registration step will be connected here.',
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const AvailabilityScreen(),
+      ),
     );
   }
 
@@ -93,18 +106,21 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   Widget _documentCard({
     required String title,
     required String description,
-    required bool uploaded,
-    required VoidCallback onUpload,
+    required String documentKey,
+    required bool added,
     required IconData icon,
   }) {
+    final isLoading = _loadingDocument == documentKey;
+
     return Container(
+      margin: const EdgeInsets.only(bottom: 14),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: uploaded
-              ? const Color(0xFFE86100)
+          color: added
+              ? const Color(0xFF86EFAC)
               : const Color(0xFFE5E7EB),
         ),
       ),
@@ -114,12 +130,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             width: 46,
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFFFFF1E8),
+              color: added
+                  ? const Color(0xFFF0FDF4)
+                  : const Color(0xFFFFF1E8),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(
-              icon,
-              color: const Color(0xFFE86100),
+              added ? Icons.check : icon,
+              color: added
+                  ? const Color(0xFF15803D)
+                  : const Color(0xFFE86100),
             ),
           ),
           const SizedBox(width: 14),
@@ -131,49 +151,51 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   title,
                   style: const TextStyle(
                     fontSize: 15,
-                    fontWeight: FontWeight.w700,
+                    fontWeight: FontWeight.w800,
                     color: Color(0xFF171717),
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  description,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  uploaded ? 'Added' : 'Required',
+                  added ? 'Document added' : description,
                   style: TextStyle(
                     fontSize: 12,
-                    fontWeight: FontWeight.w700,
-                    color: uploaded
+                    height: 1.4,
+                    color: added
                         ? const Color(0xFF15803D)
-                        : const Color(0xFFDC2626),
+                        : const Color(0xFF6B7280),
                   ),
                 ),
               ],
             ),
           ),
           const SizedBox(width: 8),
-          OutlinedButton(
-            onPressed: _isLoading ? null : onUpload,
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFFE86100),
-              side: const BorderSide(
+          if (isLoading)
+            const SizedBox(
+              width: 22,
+              height: 22,
+              child: CircularProgressIndicator(
+                strokeWidth: 2.5,
                 color: Color(0xFFE86100),
               ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+            )
+          else
+            TextButton(
+              onPressed: added
+                  ? null
+                  : () {
+                      _addDocument(documentKey);
+                    },
+              child: Text(
+                added ? 'Added' : 'Add',
+                style: TextStyle(
+                  fontWeight: FontWeight.w700,
+                  color: added
+                      ? const Color(0xFF15803D)
+                      : const Color(0xFFE86100),
+                ),
               ),
             ),
-            child: Text(
-              uploaded ? 'Added' : 'Add',
-            ),
-          ),
         ],
       ),
     );
@@ -201,26 +223,73 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Identity verification',
+                'Upload your documents',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
-                'Add the documents required for your Dojo Walker verification.',
+                'These documents will be required for Dojo Walker verification.',
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.5,
                   color: Color(0xFF4B5563),
                 ),
               ),
+              const SizedBox(height: 30),
 
-              const SizedBox(height: 18),
+              const Text(
+                'Aadhaar Card',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF171717),
+                ),
+              ),
+              const SizedBox(height: 12),
+
+              _documentCard(
+                title: 'Aadhaar Front',
+                description:
+                    'Upload the front side of your Aadhaar card.',
+                documentKey: 'Aadhaar Front',
+                added: _aadhaarFrontAdded,
+                icon: Icons.badge_outlined,
+              ),
+
+              _documentCard(
+                title: 'Aadhaar Back',
+                description:
+                    'Upload the back side of your Aadhaar card.',
+                documentKey: 'Aadhaar Back',
+                added: _aadhaarBackAdded,
+                icon: Icons.badge_outlined,
+              ),
+
+              const SizedBox(height: 8),
+
+              _documentCard(
+                title: 'PAN Card',
+                description:
+                    'Upload a clear copy of your PAN card.',
+                documentKey: 'PAN',
+                added: _panAdded,
+                icon: Icons.credit_card_outlined,
+              ),
+
+              _documentCard(
+                title: 'Profile Photo',
+                description:
+                    'Upload a clear recent profile photo.',
+                documentKey: 'Profile Photo',
+                added: _profilePhotoAdded,
+                icon: Icons.person_outline,
+              ),
+
+              const SizedBox(height: 8),
 
               Container(
                 padding: const EdgeInsets.all(14),
@@ -239,7 +308,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                     SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Your documents will be used only for verification. Secure document storage will be connected when the backend is configured.',
+                        'Your Aadhaar, PAN and other sensitive documents must be stored securely. Secure backend storage will be connected when verification is implemented.',
                         style: TextStyle(
                           fontSize: 12,
                           height: 1.5,
@@ -251,46 +320,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 24),
-
-              _documentCard(
-                title: 'Aadhaar Card',
-                description:
-                    'Upload a clear identity document for verification.',
-                uploaded: _aadhaarUploaded,
-                icon: Icons.badge_outlined,
-                onUpload: () {
-                  _uploadDocument('Aadhaar');
-                },
-              ),
-
-              const SizedBox(height: 14),
-
-              _documentCard(
-                title: 'PAN Card',
-                description:
-                    'Upload your PAN document for identity verification.',
-                uploaded: _panUploaded,
-                icon: Icons.credit_card_outlined,
-                onUpload: () {
-                  _uploadDocument('PAN');
-                },
-              ),
-
-              const SizedBox(height: 14),
-
-              _documentCard(
-                title: 'Profile Photo',
-                description:
-                    'Add a recent clear photo for your walker profile.',
-                uploaded: _photoUploaded,
-                icon: Icons.person_outline,
-                onUpload: () {
-                  _uploadDocument('Photo');
-                },
-              ),
-
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               SizedBox(
                 width: double.infinity,
