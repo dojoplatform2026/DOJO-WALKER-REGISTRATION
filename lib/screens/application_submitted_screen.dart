@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 
 class ApplicationSubmittedScreen extends StatelessWidget {
-  const ApplicationSubmittedScreen({super.key});
+  final String applicationId;
+
+  const ApplicationSubmittedScreen({
+    super.key,
+    required this.applicationId,
+  });
 
   Widget _statusStep({
     required String title,
@@ -201,9 +206,9 @@ class ApplicationSubmittedScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      'DW-REG-PENDING',
-                      style: TextStyle(
+                    Text(
+                      applicationId,
+                      style: const TextStyle(
                         fontSize: 17,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
