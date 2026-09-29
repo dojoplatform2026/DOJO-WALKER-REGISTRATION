@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../state/registration_state.dart';
@@ -18,6 +19,15 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _phoneController.text = data.phoneNumber;
+  }
+
+  @override
   void dispose() {
     _phoneController.dispose();
     super.dispose();
@@ -26,7 +36,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
   Future<void> _continue() async {
     final phone = _phoneController.text.trim();
 
-    if (phone.length != 10) {
+    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(phone)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
@@ -49,7 +59,6 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
       return;
     }
 
-    // Save phone number in central registration state.
     context.read<RegistrationState>().update(
           phoneNumber: phone,
         );
@@ -86,11 +95,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 28),
-
               const Text(
                 'Enter your mobile number',
                 style: TextStyle(
@@ -99,9 +106,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
                 'We will use your mobile number to start your Dojo Walker registration.',
                 style: TextStyle(
@@ -110,9 +115,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 32),
-
               const Text(
                 'Mobile number',
                 style: TextStyle(
@@ -121,13 +124,14 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 maxLength: 10,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 decoration: InputDecoration(
                   counterText: '',
                   prefixText: '+91 ',
@@ -135,22 +139,19 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE5E7EB),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE5E7EB),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius:
-                        BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE86100),
                       width: 2,
@@ -158,32 +159,26 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
+                  onPressed: _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
@@ -197,9 +192,7 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                         ),
                 ),
               ),
-
               const SizedBox(height: 20),
-
               const Text(
                 'By continuing, you agree to the Dojo Walk registration terms and privacy policy.',
                 textAlign: TextAlign.center,
