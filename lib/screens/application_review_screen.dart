@@ -1,44 +1,41 @@
 import 'package:flutter/material.dart';
 
-class ApplicationReviewScreen extends StatelessWidget {
+import 'application_submitted_screen.dart';
+
+class ApplicationReviewScreen extends StatefulWidget {
   const ApplicationReviewScreen({super.key});
 
-  void _submitApplication(BuildContext context) {
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Submit application?'),
-          content: const Text(
-            'Please make sure all your registration information and documents are correct before submitting.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text('Review Again'),
-            ),
-            FilledButton(
-              onPressed: () {
-                Navigator.of(dialogContext).pop();
+  @override
+  State<ApplicationReviewScreen> createState() =>
+      _ApplicationReviewScreenState();
+}
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(
-                      'Application submission will be connected after backend setup.',
-                    ),
-                  ),
-                );
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFE86100),
-              ),
-              child: const Text('Submit'),
-            ),
-          ],
-        );
-      },
+class _ApplicationReviewScreenState
+    extends State<ApplicationReviewScreen> {
+  bool _isSubmitting = false;
+
+  Future<void> _submitApplication() async {
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    await Future<void>.delayed(
+      const Duration(milliseconds: 700),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = false;
+    });
+
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (_) => const ApplicationSubmittedScreen(),
+      ),
+      (route) => false,
     );
   }
 
@@ -153,7 +150,8 @@ class ApplicationReviewScreen extends StatelessWidget {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Review your application',
@@ -230,7 +228,8 @@ class ApplicationReviewScreen extends StatelessWidget {
                 children: [
                   _row(
                     label: 'Experience',
-                    value: 'Selected experience level',
+                    value:
+                        'Selected experience level',
                   ),
                   _row(
                     label: 'Dog handling',
@@ -248,15 +247,18 @@ class ApplicationReviewScreen extends StatelessWidget {
                 children: [
                   _row(
                     label: 'Work type',
-                    value: 'Part-time / Full-time',
+                    value:
+                        'Part-time / Full-time',
                   ),
                   _row(
                     label: 'Shift',
-                    value: 'Morning / Evening / Both',
+                    value:
+                        'Morning / Evening / Both',
                   ),
                   _row(
                     label: 'Days',
-                    value: 'Selected available days',
+                    value:
+                        'Selected available days',
                   ),
                   _row(
                     label: 'Walk types',
@@ -269,9 +271,18 @@ class ApplicationReviewScreen extends StatelessWidget {
               _section(
                 title: 'Documents',
                 children: [
-                  _verifiedItem('Aadhaar document added'),
-                  _verifiedItem('PAN document added'),
-                  _verifiedItem('Profile photo added'),
+                  _verifiedItem(
+                    'Aadhaar Front added',
+                  ),
+                  _verifiedItem(
+                    'Aadhaar Back added',
+                  ),
+                  _verifiedItem(
+                    'PAN document added',
+                  ),
+                  _verifiedItem(
+                    'Profile photo added',
+                  ),
                 ],
               ),
 
@@ -280,15 +291,18 @@ class ApplicationReviewScreen extends StatelessWidget {
                 children: [
                   _row(
                     label: 'Name',
-                    value: 'Emergency contact name',
+                    value:
+                        'Emergency contact name',
                   ),
                   _row(
                     label: 'Mobile',
-                    value: '+91 XXXXXXXXXX',
+                    value:
+                        '+91 XXXXXXXXXX',
                   ),
                   _row(
                     label: 'Relationship',
-                    value: 'Relationship',
+                    value:
+                        'Relationship',
                   ),
                 ],
               ),
@@ -299,10 +313,12 @@ class ApplicationReviewScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1E8),
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius:
+                      BorderRadius.circular(16),
                 ),
                 child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -329,23 +345,39 @@ class ApplicationReviewScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: () {
-                    _submitApplication(context);
-                  },
+                  onPressed: _isSubmitting
+                      ? null
+                      : _submitApplication,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Text(
-                    'Submit Application',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
+                  child: _isSubmitting
+                      ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child:
+                              CircularProgressIndicator(
+                            strokeWidth: 2.5,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text(
+                          'Submit Application',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight:
+                                FontWeight.w700,
+                          ),
+                        ),
                 ),
               ),
 
