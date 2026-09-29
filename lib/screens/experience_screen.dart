@@ -31,6 +31,24 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    if (data.experienceLevel.isNotEmpty &&
+        _experienceOptions.contains(
+          data.experienceLevel,
+        )) {
+      _selectedExperience = data.experienceLevel;
+    }
+
+    _detailsController.text = data.experienceDetails;
+    _dogHandling = data.dogHandling;
+    _petCare = data.petCare;
+  }
+
+  @override
   void dispose() {
     _detailsController.dispose();
     super.dispose();
@@ -132,8 +150,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Tell us about your experience',
@@ -153,7 +170,6 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
               const Text(
                 'Experience level',
                 style: TextStyle(
@@ -163,29 +179,24 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
               DropdownButtonFormField<String>(
                 initialValue: _selectedExperience,
                 decoration: _inputDecoration(
                   hintText: 'Select experience level',
                 ),
-                items: _experienceOptions.map(
-                  (experience) {
-                    return DropdownMenuItem<String>(
-                      value: experience,
-                      child: Text(experience),
-                    );
-                  },
-                ).toList(),
+                items: _experienceOptions.map((experience) {
+                  return DropdownMenuItem<String>(
+                    value: experience,
+                    child: Text(experience),
+                  );
+                }).toList(),
                 onChanged: (value) {
                   setState(() {
                     _selectedExperience = value;
                   });
                 },
               ),
-
               const SizedBox(height: 22),
-
               const Text(
                 'Experience details',
                 style: TextStyle(
@@ -195,25 +206,20 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
               TextField(
                 controller: _detailsController,
                 maxLines: 4,
-                textCapitalization:
-                    TextCapitalization.sentences,
+                textCapitalization: TextCapitalization.sentences,
                 decoration: _inputDecoration(
                   hintText:
                       'Tell us about your experience with dogs or pets',
                 ),
               ),
-
               const SizedBox(height: 22),
-
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius:
-                      BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: const Color(0xFFE5E7EB),
                   ),
@@ -222,8 +228,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   children: [
                     SwitchListTile(
                       value: _dogHandling,
-                      activeThumbColor:
-                          const Color(0xFFE86100),
+                      activeThumbColor: const Color(0xFFE86100),
                       title: const Text(
                         'Dog handling experience',
                         style: TextStyle(
@@ -251,8 +256,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                     ),
                     SwitchListTile(
                       value: _petCare,
-                      activeThumbColor:
-                          const Color(0xFFE86100),
+                      activeThumbColor: const Color(0xFFE86100),
                       title: const Text(
                         'Pet care experience',
                         style: TextStyle(
@@ -277,32 +281,26 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 28),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
+                  onPressed: _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
