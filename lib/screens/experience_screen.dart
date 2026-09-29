@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'documents_screen.dart';
+
 class ExperienceScreen extends StatefulWidget {
   const ExperienceScreen({super.key});
 
@@ -8,12 +10,13 @@ class ExperienceScreen extends StatefulWidget {
 }
 
 class _ExperienceScreenState extends State<ExperienceScreen> {
-  final TextEditingController _experienceController =
+  String? _selectedExperience;
+
+  final TextEditingController _detailsController =
       TextEditingController();
 
-  String? _selectedExperience;
-  bool _hasDogExperience = false;
-  bool _hasPetCareExperience = false;
+  bool _dogHandling = false;
+  bool _petCare = false;
   bool _isLoading = false;
 
   final List<String> _experienceOptions = const [
@@ -26,7 +29,7 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
 
   @override
   void dispose() {
-    _experienceController.dispose();
+    _detailsController.dispose();
     super.dispose();
   }
 
@@ -41,13 +44,6 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   Future<void> _continue() async {
     if (_selectedExperience == null) {
       _showMessage('Select your experience level.');
-      return;
-    }
-
-    final details = _experienceController.text.trim();
-
-    if (details.isEmpty) {
-      _showMessage('Tell us a little about your experience.');
       return;
     }
 
@@ -67,101 +63,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
       _isLoading = false;
     });
 
-    _showMessage(
-      'Next registration step will be connected here.',
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String hintText,
-  }) {
-    return InputDecoration(
-      hintText: hintText,
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xFFE5E7EB),
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xFFE5E7EB),
-        ),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
-        borderSide: const BorderSide(
-          color: Color(0xFFE86100),
-          width: 2,
-        ),
-      ),
-    );
-  }
-
-  Widget _label(String text) {
-    return Text(
-      text,
-      style: const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.w700,
-        color: Color(0xFF171717),
-      ),
-    );
-  }
-
-  Widget _experienceSwitch({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
-  }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 12,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF171717),
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    height: 1.4,
-                    color: Color(0xFF6B7280),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Switch(
-            value: value,
-            activeThumbColor: const Color(0xFFE86100),
-            onChanged: onChanged,
-          ),
-        ],
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const DocumentsScreen(),
       ),
     );
   }
@@ -195,28 +99,52 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
-                'Your experience helps us understand your background and suitability for walker work.',
+                'Your experience helps us understand your pet-handling skills and background.',
                 style: TextStyle(
                   fontSize: 16,
                   height: 1.5,
                   color: Color(0xFF4B5563),
                 ),
               ),
+              const SizedBox(height: 30),
 
-              const SizedBox(height: 32),
-
-              _label('Experience level'),
-
+              const Text(
+                'Experience level',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF171717),
+                ),
+              ),
               const SizedBox(height: 8),
 
               DropdownButtonFormField<String>(
                 initialValue: _selectedExperience,
-                decoration: _inputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Select experience level',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE86100),
+                      width: 2,
+                    ),
+                  ),
                 ),
                 items: _experienceOptions.map(
                   (experience) {
@@ -233,51 +161,118 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                 },
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              _label('Experience details'),
-
+              const Text(
+                'Experience details',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Color(0xFF171717),
+                ),
+              ),
               const SizedBox(height: 8),
 
               TextField(
-                controller: _experienceController,
-                maxLines: 5,
+                controller: _detailsController,
+                maxLines: 4,
                 textCapitalization: TextCapitalization.sentences,
-                decoration: _inputDecoration(
+                decoration: InputDecoration(
                   hintText:
-                      'Tell us about your previous work, pet care, dog walking, or related experience.',
+                      'Tell us about your experience with dogs or pets',
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE5E7EB),
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: const BorderSide(
+                      color: Color(0xFFE86100),
+                      width: 2,
+                    ),
+                  ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              const SizedBox(height: 22),
 
-              _experienceSwitch(
-                title: 'Dog handling experience',
-                subtitle:
-                    'Have you handled or cared for dogs before?',
-                value: _hasDogExperience,
-                onChanged: (value) {
-                  setState(() {
-                    _hasDogExperience = value;
-                  });
-                },
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: const Color(0xFFE5E7EB),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      value: _dogHandling,
+                      activeThumbColor: const Color(0xFFE86100),
+                      title: const Text(
+                        'Dog handling experience',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF171717),
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'I have experience handling dogs.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _dogHandling = value;
+                        });
+                      },
+                    ),
+                    const Divider(
+                      height: 1,
+                      color: Color(0xFFE5E7EB),
+                    ),
+                    SwitchListTile(
+                      value: _petCare,
+                      activeThumbColor: const Color(0xFFE86100),
+                      title: const Text(
+                        'Pet care experience',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF171717),
+                        ),
+                      ),
+                      subtitle: const Text(
+                        'I have experience with general pet care.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFF6B7280),
+                        ),
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _petCare = value;
+                        });
+                      },
+                    ),
+                  ],
+                ),
               ),
 
-              const SizedBox(height: 12),
-
-              _experienceSwitch(
-                title: 'Pet care experience',
-                subtitle:
-                    'Do you have experience caring for pets?',
-                value: _hasPetCareExperience,
-                onChanged: (value) {
-                  setState(() {
-                    _hasPetCareExperience = value;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
               SizedBox(
                 width: double.infinity,
@@ -287,7 +282,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFFFFC7A3),
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
                     ),
