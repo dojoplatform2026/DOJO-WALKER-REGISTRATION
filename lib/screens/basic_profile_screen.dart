@@ -27,6 +27,20 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _nameController.text = data.fullName;
+    _dobController.text = data.dateOfBirth;
+
+    if (data.gender.isNotEmpty) {
+      _selectedGender = data.gender;
+    }
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _dobController.dispose();
@@ -97,7 +111,6 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
       return;
     }
 
-    // Save Basic Profile in central registration state.
     context.read<RegistrationState>().update(
           phoneNumber: widget.phoneNumber,
           fullName: name,
@@ -183,8 +196,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Tell us about yourself',
@@ -208,8 +220,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _nameController,
-                textCapitalization:
-                    TextCapitalization.words,
+                textCapitalization: TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter your full name',
                 ),
@@ -253,9 +264,7 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   ),
                   DropdownMenuItem(
                     value: 'Prefer not to say',
-                    child: Text(
-                      'Prefer not to say',
-                    ),
+                    child: Text('Prefer not to say'),
                   ),
                 ],
                 onChanged: (value) {
@@ -269,25 +278,21 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
+                  onPressed: _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
