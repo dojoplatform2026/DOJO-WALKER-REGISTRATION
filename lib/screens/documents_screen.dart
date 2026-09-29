@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'availability_screen.dart';
 
 class DocumentsScreen extends StatefulWidget {
   const DocumentsScreen({super.key});
 
   @override
-  State<DocumentsScreen> createState() => _DocumentsScreenState();
+  State<DocumentsScreen> createState() =>
+      _DocumentsScreenState();
 }
 
 class _DocumentsScreenState extends State<DocumentsScreen> {
@@ -53,12 +56,16 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
   Future<void> _continue() async {
     if (!_aadhaarFrontAdded) {
-      _showMessage('Add the front side of your Aadhaar.');
+      _showMessage(
+        'Add the front side of your Aadhaar.',
+      );
       return;
     }
 
     if (!_aadhaarBackAdded) {
-      _showMessage('Add the back side of your Aadhaar.');
+      _showMessage(
+        'Add the back side of your Aadhaar.',
+      );
       return;
     }
 
@@ -83,6 +90,14 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
     if (!mounted) {
       return;
     }
+
+    // Save document completion status in central state.
+    context.read<RegistrationState>().update(
+          aadhaarFrontAdded: _aadhaarFrontAdded,
+          aadhaarBackAdded: _aadhaarBackAdded,
+          panAdded: _panAdded,
+          profilePhotoAdded: _profilePhotoAdded,
+        );
 
     setState(() {
       _isLoading = false;
@@ -145,7 +160,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
           const SizedBox(width: 14),
           Expanded(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
@@ -157,7 +173,9 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  added ? 'Document added' : description,
+                  added
+                      ? 'Document added'
+                      : description,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -220,7 +238,8 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Upload your documents',
@@ -295,10 +314,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1E8),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                 ),
                 child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.lock_outline,
@@ -326,21 +347,25 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
