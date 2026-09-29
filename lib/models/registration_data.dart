@@ -29,10 +29,15 @@ class RegistrationData {
   String workType;
   List<String> shifts;
   List<String> availableDays;
+
+  List<String> morningSlots;
+  List<String> eveningSlots;
+
   String morningStartTime;
   String morningEndTime;
   String eveningStartTime;
   String eveningEndTime;
+
   List<String> walkTypes;
 
   // Emergency Contact
@@ -61,16 +66,20 @@ class RegistrationData {
     this.workType = '',
     List<String>? shifts,
     List<String>? availableDays,
-    this.morningStartTime = '06:00',
-    this.morningEndTime = '10:00',
-    this.eveningStartTime = '17:00',
-    this.eveningEndTime = '21:00',
+    List<String>? morningSlots,
+    List<String>? eveningSlots,
+    this.morningStartTime = '',
+    this.morningEndTime = '',
+    this.eveningStartTime = '',
+    this.eveningEndTime = '',
     List<String>? walkTypes,
     this.emergencyContactName = '',
     this.emergencyContactPhone = '',
     this.emergencyContactRelationship = '',
   })  : shifts = shifts ?? <String>[],
         availableDays = availableDays ?? <String>[],
+        morningSlots = morningSlots ?? <String>[],
+        eveningSlots = eveningSlots ?? <String>[],
         walkTypes = walkTypes ?? <String>[];
 
   RegistrationData copyWith({
@@ -94,6 +103,8 @@ class RegistrationData {
     String? workType,
     List<String>? shifts,
     List<String>? availableDays,
+    List<String>? morningSlots,
+    List<String>? eveningSlots,
     String? morningStartTime,
     String? morningEndTime,
     String? eveningStartTime,
@@ -128,8 +139,12 @@ class RegistrationData {
           profilePhotoAdded ?? this.profilePhotoAdded,
       workType: workType ?? this.workType,
       shifts: shifts ?? List<String>.from(this.shifts),
-      availableDays: availableDays ??
-          List<String>.from(this.availableDays),
+      availableDays:
+          availableDays ?? List<String>.from(this.availableDays),
+      morningSlots:
+          morningSlots ?? List<String>.from(this.morningSlots),
+      eveningSlots:
+          eveningSlots ?? List<String>.from(this.eveningSlots),
       morningStartTime:
           morningStartTime ?? this.morningStartTime,
       morningEndTime:
