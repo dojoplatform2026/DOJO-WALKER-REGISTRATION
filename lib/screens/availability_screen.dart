@@ -26,18 +26,11 @@ class _AvailabilityScreenState
     '18:00 - 22:00',
   ];
 
-  final List<String> _walkTypes = const [
-    'monthlyWalk',
-    'temporaryWalk',
-    'instaWalk',
-  ];
-
   String _workType = '';
   String _selectedShift = '';
 
   final List<String> _selectedMorningSlots = [];
   final List<String> _selectedEveningSlots = [];
-  final List<String> _selectedWalkTypes = [];
 
   bool _isSaving = false;
 
@@ -49,17 +42,17 @@ class _AvailabilityScreenState
 
     _workType = data.workType;
 
-    _selectedShift = data.shifts.isNotEmpty
-        ? data.shifts.first
-        : '';
-
     _selectedMorningSlots.addAll(data.morningSlots);
     _selectedEveningSlots.addAll(data.eveningSlots);
-    _selectedWalkTypes.addAll(data.walkTypes);
 
-    if (_selectedWalkTypes.isEmpty) {
-      _selectedWalkTypes.add('monthlyWalk');
-      _selectedWalkTypes.add('temporaryWalk');
+    if (_workType == 'partTime') {
+      if (_selectedMorningSlots.isNotEmpty) {
+        _selectedShift = 'morning';
+      } else if (_selectedEveningSlots.isNotEmpty) {
+        _selectedShift = 'evening';
+      }
+    } else if (_workType == 'fullTime') {
+      _selectedShift = 'both';
     }
   }
 
@@ -71,10 +64,11 @@ class _AvailabilityScreenState
     setState(() {
       _workType = type;
 
+      _selectedMorningSlots.clear();
+      _selectedEveningSlots.clear();
+
       if (type == 'partTime') {
         _selectedShift = '';
-        _selectedMorningSlots.clear();
-        _selectedEveningSlots.clear();
       } else {
         _selectedShift = 'both';
       }
@@ -113,19 +107,11 @@ class _AvailabilityScreenState
     });
   }
 
-  void _toggleWalkType(String type) {
-    setState(() {
-      if (_selectedWalkTypes.contains(type)) {
-        _selectedWalkTypes.remove(type);
-      } else {
-        _selectedWalkTypes.add(type);
-      }
-    });
-  }
-
   bool _validate() {
     if (_workType.isEmpty) {
-      _showMessage('Please select Part-time or Full-time.');
+      _showMessage(
+        'Please select Part-time or Full-time.',
+      );
       return false;
     }
 
@@ -168,13 +154,6 @@ class _AvailabilityScreenState
         );
         return false;
       }
-    }
-
-    if (_selectedWalkTypes.isEmpty) {
-      _showMessage(
-        'Please select at least one walk type.',
-      );
-      return false;
     }
 
     return true;
@@ -253,8 +232,6 @@ class _AvailabilityScreenState
           morningEndTime: morningEnd,
           eveningStartTime: eveningStart,
           eveningEndTime: eveningEnd,
-          walkTypes:
-              List<String>.from(_selectedWalkTypes),
         );
 
     setState(() {
@@ -266,19 +243,6 @@ class _AvailabilityScreenState
         builder: (_) => const EmergencyContactScreen(),
       ),
     );
-  }
-
-  String _walkTypeLabel(String type) {
-    switch (type) {
-      case 'monthlyWalk':
-        return 'Monthly Walk — Permanent';
-      case 'temporaryWalk':
-        return 'Temporary Walk';
-      case 'instaWalk':
-        return 'Insta Walk';
-      default:
-        return type;
-    }
   }
 
   Widget _workTypeCard({
@@ -504,6 +468,7 @@ class _AvailabilityScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         title: const Text(
           'Availability',
@@ -690,91 +655,11 @@ class _AvailabilityScreenState
                 ),
               ],
 
-              if (_workType.isNotEmpty) ...[
-                const SizedBox(height: 28),
-
-                _sectionTitle(
-                  'Walk Types',
-                  'Choose the types of walks you are available for.',
-                ),
-
-                const SizedBox(height: 12),
-
-                ..._walkTypes.map(
-                  (type) {
-                    final selected =
-                        _selectedWalkTypes.contains(type);
-
-                    return InkWell(
-                      onTap: () {
-                        _toggleWalkType(type);
-                      },
-                      borderRadius:
-                          BorderRadius.circular(14),
-                      child: Container(
-                        margin:
-                            const EdgeInsets.only(
-                          bottom: 10,
-                        ),
-                        padding:
-                            const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: selected
-                              ? const Color(0xFFFFF1E8)
-                              : Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(14),
-                          border: Border.all(
-                            color: selected
-                                ? const Color(0xFFE86100)
-                                : const Color(
-                                    0xFFE5E7EB,
-                                  ),
-                            width:
-                                selected ? 1.5 : 1,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(
-                              selected
-                                  ? Icons.check_box
-                                  : Icons
-                                      .check_box_outline_blank,
-                              color: selected
-                                  ? const Color(
-                                      0xFFE86100,
-                                    )
-                                  : const Color(
-                                      0xFF9CA3AF,
-                                    ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _walkTypeLabel(type),
-                                style:
-                                    const TextStyle(
-                                  fontSize: 15,
-                                  fontWeight:
-                                      FontWeight.w700,
-                                  color:
-                                      Color(0xFF171717),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
-
               const SizedBox(height: 22),
 
               const Text(
-                'Your selected availability will be used by the system when matching work to your available time.',
+                'The system will match available work to your selected time slots. '
+                'You do not need to choose a walk type in advance.',
                 style: TextStyle(
                   fontSize: 12,
                   height: 1.5,
@@ -794,6 +679,8 @@ class _AvailabilityScreenState
                     backgroundColor:
                         const Color(0xFFE86100),
                     foregroundColor: Colors.white,
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(14),
