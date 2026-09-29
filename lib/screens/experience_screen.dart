@@ -72,6 +72,18 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
 
     final details = _detailsController.text.trim();
 
+    if (details.isEmpty) {
+      _showMessage('Enter your experience details.');
+      return;
+    }
+
+    if (details.length < 10) {
+      _showMessage(
+        'Please enter at least 10 characters about your experience.',
+      );
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -160,7 +172,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 12),
+
               const Text(
                 'Your experience helps us understand your pet-handling skills and background.',
                 style: TextStyle(
@@ -169,7 +183,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
+
               const SizedBox(height: 30),
+
               const Text(
                 'Experience level',
                 style: TextStyle(
@@ -178,7 +194,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               DropdownButtonFormField<String>(
                 initialValue: _selectedExperience,
                 decoration: _inputDecoration(
@@ -196,7 +214,9 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   });
                 },
               ),
+
               const SizedBox(height: 22),
+
               const Text(
                 'Experience details',
                 style: TextStyle(
@@ -205,17 +225,22 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _detailsController,
                 maxLines: 4,
-                textCapitalization: TextCapitalization.sentences,
+                textCapitalization:
+                    TextCapitalization.sentences,
                 decoration: _inputDecoration(
                   hintText:
                       'Tell us about your experience with dogs or pets',
                 ),
               ),
+
               const SizedBox(height: 22),
+
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -228,7 +253,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   children: [
                     SwitchListTile(
                       value: _dogHandling,
-                      activeThumbColor: const Color(0xFFE86100),
+                      activeThumbColor:
+                          const Color(0xFFE86100),
                       title: const Text(
                         'Dog handling experience',
                         style: TextStyle(
@@ -250,13 +276,16 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                         });
                       },
                     ),
+
                     const Divider(
                       height: 1,
                       color: Color(0xFFE5E7EB),
                     ),
+
                     SwitchListTile(
                       value: _petCare,
-                      activeThumbColor: const Color(0xFFE86100),
+                      activeThumbColor:
+                          const Color(0xFFE86100),
                       title: const Text(
                         'Pet care experience',
                         style: TextStyle(
@@ -281,26 +310,32 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   ],
                 ),
               ),
+
               const SizedBox(height: 28),
+
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
