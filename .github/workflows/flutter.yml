@@ -11,12 +11,9 @@ on:
       - master
   workflow_dispatch:
 
-permissions:
-  contents: write
-
 jobs:
-  setup-android:
-    name: Generate Android Project
+  analyze:
+    name: Flutter Analyze
     runs-on: ubuntu-latest
 
     steps:
@@ -33,37 +30,16 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      - name: Generate Android project
-        run: |
-          flutter create \
-            --platforms=android \
-            --org com.dojo \
-            .
-
       - name: Get dependencies
         run: flutter pub get
 
       - name: Analyze
         run: flutter analyze --no-fatal-infos
 
-      - name: Save Android project to repository
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add android
-
-          if git diff --cached --quiet; then
-            echo "Android project already exists. No changes to commit."
-          else
-            git commit -m "Add Flutter Android project"
-            git push
-          fi
-
   android-build:
     name: Android Build
     runs-on: ubuntu-latest
-    needs: setup-android
+    needs: analyze
 
     steps:
       - name: Checkout repository
@@ -75,6 +51,9 @@ jobs:
           flutter-version: '3.44.9'
           channel: stable
           cache: true
+
+      - name: Flutter version
+        run: flutter --version
 
       - name: Get dependencies
         run: flutter pub get
