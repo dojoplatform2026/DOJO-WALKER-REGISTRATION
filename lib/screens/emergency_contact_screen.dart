@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../state/registration_state.dart';
@@ -51,16 +52,11 @@ class _EmergencyContactScreenState
   }
 
   Future<void> _continue() async {
-    if (!_formKey.currentState!.validate()) {
+    if (_isSaving) {
       return;
     }
 
-    if (_relationship.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select relationship'),
-        ),
-      );
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
@@ -193,6 +189,12 @@ class _EmergencyContactScreenState
                       return 'Please enter a valid name';
                     }
 
+                    if (!RegExp(
+                      r"^[A-Za-z][A-Za-z .'-]*$",
+                    ).hasMatch(text)) {
+                      return 'Please enter a valid name';
+                    }
+
                     return null;
                   },
                 ),
@@ -213,6 +215,10 @@ class _EmergencyContactScreenState
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
                   maxLength: 10,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    LengthLimitingTextInputFormatter(10),
+                  ],
                   decoration: _inputDecoration(
                     label: '10-digit Mobile Number',
                     hint: 'Enter mobile number',
@@ -231,7 +237,9 @@ class _EmergencyContactScreenState
                       return 'Please enter mobile number';
                     }
 
-                    if (!RegExp(r'^[6-9]\d{9}$').hasMatch(text)) {
+                    if (!RegExp(
+                      r'^[6-9]\d{9}$',
+                    ).hasMatch(text)) {
                       return 'Enter a valid 10-digit mobile number';
                     }
 
@@ -265,10 +273,19 @@ class _EmergencyContactScreenState
                       child: Text(relationship),
                     );
                   }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _relationship = value ?? '';
-                    });
+                  onChanged: _isSaving
+                      ? null
+                      : (value) {
+                          setState(() {
+                            _relationship = value ?? '';
+                          });
+                        },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please select relationship';
+                    }
+
+                    return null;
                   },
                 ),
 
