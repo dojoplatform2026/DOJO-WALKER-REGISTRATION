@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'emergency_contact_screen.dart';
+
 class AvailabilityScreen extends StatefulWidget {
   const AvailabilityScreen({super.key});
 
@@ -178,8 +180,10 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       _isLoading = false;
     });
 
-    _showMessage(
-      'Next registration step will be connected here.',
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const EmergencyContactScreen(),
+      ),
     );
   }
 
@@ -297,7 +301,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               const SizedBox(width: 10),
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
@@ -349,7 +354,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         ),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           Text(
             title,
@@ -374,7 +380,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 ),
               ),
               const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
+                padding:
+                    EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
                   'to',
                   style: TextStyle(
@@ -437,7 +444,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
             color: Color(0xFF6B7280),
           ),
         ),
-        controlAffinity: ListTileControlAffinity.leading,
+        controlAffinity:
+            ListTileControlAffinity.leading,
       ),
     );
   }
@@ -461,7 +469,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Set your work availability',
@@ -471,9 +480,7 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               const Text(
                 'Tell us when you are available so we can match you with suitable walks.',
                 style: TextStyle(
@@ -482,11 +489,9 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 30),
 
               _sectionTitle('1. Work type'),
-
               const SizedBox(height: 12),
 
               Row(
@@ -508,29 +513,34 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               const SizedBox(height: 30),
 
               _sectionTitle('2. Shift'),
-
               const SizedBox(height: 12),
 
               Row(
                 children: [
                   _shiftCard(
                     title: 'Morning',
-                    subtitle: '06:00 AM – 10:00 AM',
+                    subtitle:
+                        '06:00 AM – 10:00 AM',
                     selected: _morningSelected,
                     onTap: () {
                       if (_workType == 'Part-time') {
-                        _selectPartTimeShift('Morning');
+                        _selectPartTimeShift(
+                          'Morning',
+                        );
                       }
                     },
                   ),
                   const SizedBox(width: 12),
                   _shiftCard(
                     title: 'Evening',
-                    subtitle: '05:00 PM – 09:00 PM',
+                    subtitle:
+                        '05:00 PM – 09:00 PM',
                     selected: _eveningSelected,
                     onTap: () {
                       if (_workType == 'Part-time') {
-                        _selectPartTimeShift('Evening');
+                        _selectPartTimeShift(
+                          'Evening',
+                        );
                       }
                     },
                   ),
@@ -540,7 +550,6 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               const SizedBox(height: 30),
 
               _sectionTitle('3. Available days'),
-
               const SizedBox(height: 12),
 
               Wrap(
@@ -548,13 +557,16 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 runSpacing: 8,
                 children: _days.map(
                   (day) {
-                    final selected = _selectedDays.contains(day);
+                    final selected =
+                        _selectedDays.contains(day);
 
                     return FilterChip(
                       label: Text(day),
                       selected: selected,
-                      selectedColor: const Color(0xFFFFF1E8),
-                      checkmarkColor: const Color(0xFFE86100),
+                      selectedColor:
+                          const Color(0xFFFFF1E8),
+                      checkmarkColor:
+                          const Color(0xFFE86100),
                       side: BorderSide(
                         color: selected
                             ? const Color(0xFFE86100)
@@ -577,7 +589,6 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               const SizedBox(height: 30),
 
               _sectionTitle('4. Working hours'),
-
               const SizedBox(height: 12),
 
               if (_morningSelected)
@@ -588,7 +599,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                   morning: true,
                 ),
 
-              if (_morningSelected && _eveningSelected)
+              if (_morningSelected &&
+                  _eveningSelected)
                 const SizedBox(height: 12),
 
               if (_eveningSelected)
@@ -602,11 +614,11 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
               const SizedBox(height: 30),
 
               _sectionTitle('5. Walk types'),
-
               const SizedBox(height: 12),
 
               _walkTypeTile(
-                title: 'Monthly Walk — Permanent',
+                title:
+                    'Monthly Walk — Permanent',
                 subtitle:
                     'For recurring monthly owner bookings and long-term assignments.',
                 value: _monthlyWalk,
@@ -647,10 +659,12 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1E8),
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                 ),
                 child: const Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment:
+                      CrossAxisAlignment.start,
                   children: [
                     Icon(
                       Icons.info_outline,
@@ -678,21 +692,26 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                    shape:
+                        RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
@@ -701,7 +720,8 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                           'Continue',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.w700,
+                            fontWeight:
+                                FontWeight.w700,
                           ),
                         ),
                 ),
