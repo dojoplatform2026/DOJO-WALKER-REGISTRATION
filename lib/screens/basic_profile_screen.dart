@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'address_screen.dart';
 
 class BasicProfileScreen extends StatefulWidget {
@@ -11,12 +13,15 @@ class BasicProfileScreen extends StatefulWidget {
   });
 
   @override
-  State<BasicProfileScreen> createState() => _BasicProfileScreenState();
+  State<BasicProfileScreen> createState() =>
+      _BasicProfileScreenState();
 }
 
 class _BasicProfileScreenState extends State<BasicProfileScreen> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
+  final TextEditingController _nameController =
+      TextEditingController();
+  final TextEditingController _dobController =
+      TextEditingController();
 
   String? _selectedGender;
   bool _isLoading = false;
@@ -51,7 +56,8 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
     }
 
     final day = selectedDate.day.toString().padLeft(2, '0');
-    final month = selectedDate.month.toString().padLeft(2, '0');
+    final month =
+        selectedDate.month.toString().padLeft(2, '0');
     final year = selectedDate.year.toString();
 
     setState(() {
@@ -61,18 +67,20 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
 
   Future<void> _continue() async {
     final name = _nameController.text.trim();
+    final dob = _dobController.text.trim();
+    final gender = _selectedGender;
 
     if (name.isEmpty) {
       _showMessage('Enter your full name.');
       return;
     }
 
-    if (_dobController.text.isEmpty) {
+    if (dob.isEmpty) {
       _showMessage('Select your date of birth.');
       return;
     }
 
-    if (_selectedGender == null) {
+    if (gender == null) {
       _showMessage('Select your gender.');
       return;
     }
@@ -88,6 +96,14 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
     if (!mounted) {
       return;
     }
+
+    // Save Basic Profile in central registration state.
+    context.read<RegistrationState>().update(
+          phoneNumber: widget.phoneNumber,
+          fullName: name,
+          dateOfBirth: dob,
+          gender: gender,
+        );
 
     setState(() {
       _isLoading = false;
@@ -167,7 +183,8 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Tell us about yourself',
@@ -191,7 +208,8 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
               const SizedBox(height: 8),
               TextField(
                 controller: _nameController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter your full name',
                 ),
@@ -235,7 +253,9 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   ),
                   DropdownMenuItem(
                     value: 'Prefer not to say',
-                    child: Text('Prefer not to say'),
+                    child: Text(
+                      'Prefer not to say',
+                    ),
                   ),
                 ],
                 onChanged: (value) {
@@ -249,20 +269,25 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFFFFC7A3),
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
