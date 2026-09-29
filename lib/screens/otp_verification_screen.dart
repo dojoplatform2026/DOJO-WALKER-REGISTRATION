@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'basic_profile_screen.dart';
+
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
 
@@ -54,10 +56,10 @@ class _OtpVerificationScreenState
       _isLoading = false;
     });
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'OTP verification will be connected after Firebase/OTP setup.',
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BasicProfileScreen(
+          phoneNumber: widget.phoneNumber,
         ),
       ),
     );
