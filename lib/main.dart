@@ -4,128 +4,127 @@ import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
-WidgetsFlutterBinding.ensureInitialized();
+  WidgetsFlutterBinding.ensureInitialized();
 
-await Firebase.initializeApp(
-options: DefaultFirebaseOptions.currentPlatform,
-);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
-runApp(const DojoWalkerRegistrationApp());
+  runApp(const DojoWalkerRegistrationApp());
 }
 
 class DojoWalkerRegistrationApp extends StatelessWidget {
-const DojoWalkerRegistrationApp({super.key});
+  const DojoWalkerRegistrationApp({super.key});
 
-@override
-Widget build(BuildContext context) {
-return MaterialApp(
-title: 'Dojo Walker Registration',
-debugShowCheckedModeBanner: false,
-theme: ThemeData(
-useMaterial3: true,
-colorScheme: ColorScheme.fromSeed(
-seedColor: const Color(0xFFE86100),
-brightness: Brightness.light,
-),
-scaffoldBackgroundColor: const Color(0xFFF8F9FA),
-appBarTheme: const AppBarTheme(
-backgroundColor: Colors.white,
-foregroundColor: Color(0xFF171717),
-elevation: 0,
-centerTitle: false,
-),
-),
-home: const RegistrationHomeScreen(),
-);
-}
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Dojo Walker Registration',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        useMaterial3: true,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color(0xFFE86100),
+          brightness: Brightness.light,
+        ),
+        scaffoldBackgroundColor: const Color(0xFFF8F9FA),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: Color(0xFF171717),
+          elevation: 0,
+          centerTitle: false,
+        ),
+      ),
+      home: const RegistrationHomeScreen(),
+    );
+  }
 }
 
 class RegistrationHomeScreen extends StatelessWidget {
-const RegistrationHomeScreen({super.key});
+  const RegistrationHomeScreen({super.key});
 
-@override
-Widget build(BuildContext context) {
-return Scaffold(
-appBar: AppBar(
-title: const Text(
-'Dojo Walker',
-style: TextStyle(
-fontWeight: FontWeight.w700,
-),
-),
-),
-body: SafeArea(
-child: Padding(
-padding: const EdgeInsets.all(24),
-child: Column(
-crossAxisAlignment: CrossAxisAlignment.start,
-children: [
-const Spacer(),
-
-          const Text(
-            'Become a Dojo Walker',
-            style: TextStyle(
-              fontSize: 30,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF171717),
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Dojo Walker',
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
           ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Spacer(),
 
-          const SizedBox(height: 12),
-
-          const Text(
-            'Register with Dojo Walk and start your walker onboarding journey.',
-            style: TextStyle(
-              fontSize: 16,
-              height: 1.5,
-              color: Color(0xFF4B5563),
-            ),
-          ),
-
-          const SizedBox(height: 32),
-
-          SizedBox(
-            width: double.infinity,
-            height: 54,
-            child: FilledButton(
-              onPressed: () {
-                // Registration flow will be added next.
-              },
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFFE86100),
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(14),
+              const Text(
+                'Become a Dojo Walker',
+                style: TextStyle(
+                  fontSize: 30,
+                  fontWeight: FontWeight.w800,
+                  color: Color(0xFF171717),
                 ),
               ),
-              child: const Text(
-                'Start Registration',
+
+              const SizedBox(height: 12),
+
+              const Text(
+                'Register with Dojo Walk and start your walker onboarding journey.',
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.w700,
+                  height: 1.5,
+                  color: Color(0xFF4B5563),
                 ),
               ),
-            ),
-          ),
 
-          const SizedBox(height: 16),
+              const SizedBox(height: 32),
 
-          const Center(
-            child: Text(
-              'Dojo Walker Registration',
-              style: TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
+              SizedBox(
+                width: double.infinity,
+                height: 54,
+                child: FilledButton(
+                  onPressed: () {
+                    // Registration flow will be added next.
+                  },
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFFE86100),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  child: const Text(
+                    'Start Registration',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
               ),
-            ),
+
+              const SizedBox(height: 16),
+
+              const Center(
+                child: Text(
+                  'Dojo Walker Registration',
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Color(0xFF6B7280),
+                  ),
+                ),
+              ),
+
+              const Spacer(),
+            ],
           ),
-
-          const Spacer(),
-        ],
+        ),
       ),
-    ),
-  ),
-);
-
-}
+    );
+  }
 }
