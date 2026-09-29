@@ -20,6 +20,7 @@ class BasicProfileScreen extends StatefulWidget {
 class _BasicProfileScreenState extends State<BasicProfileScreen> {
   final TextEditingController _nameController =
       TextEditingController();
+
   final TextEditingController _dobController =
       TextEditingController();
 
@@ -84,16 +85,29 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
     final dob = _dobController.text.trim();
     final gender = _selectedGender;
 
+    // Full name validation.
     if (name.isEmpty) {
       _showMessage('Enter your full name.');
       return;
     }
 
+    if (name.length < 2) {
+      _showMessage('Enter your full name correctly.');
+      return;
+    }
+
+    if (!RegExp(r"^[A-Za-z][A-Za-z .'-]*$").hasMatch(name)) {
+      _showMessage('Enter a valid full name.');
+      return;
+    }
+
+    // Date of birth validation.
     if (dob.isEmpty) {
       _showMessage('Select your date of birth.');
       return;
     }
 
+    // Gender validation.
     if (gender == null) {
       _showMessage('Select your gender.');
       return;
@@ -206,7 +220,9 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 12),
+
               const Text(
                 'This information will be used to create your Dojo Walker registration profile.',
                 style: TextStyle(
@@ -215,9 +231,13 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
+
               const SizedBox(height: 32),
+
               _label('Full name'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
@@ -225,9 +245,13 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   hintText: 'Enter your full name',
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label('Date of birth'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _dobController,
                 readOnly: true,
@@ -241,9 +265,13 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   ),
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label('Gender'),
+
               const SizedBox(height: 8),
+
               DropdownButtonFormField<String>(
                 initialValue: _selectedGender,
                 decoration: _inputDecoration(
@@ -273,7 +301,9 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                   });
                 },
               ),
+
               const SizedBox(height: 32),
+
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -306,7 +336,9 @@ class _BasicProfileScreenState extends State<BasicProfileScreen> {
                         ),
                 ),
               ),
+
               const SizedBox(height: 18),
+
               Center(
                 child: Text(
                   'Mobile: +91 ${widget.phoneNumber}',
