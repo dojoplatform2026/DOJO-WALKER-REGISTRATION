@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'otp_verification_screen.dart';
 
 class PhoneLoginScreen extends StatefulWidget {
@@ -10,7 +12,8 @@ class PhoneLoginScreen extends StatefulWidget {
 }
 
 class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
-  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _phoneController =
+      TextEditingController();
 
   bool _isLoading = false;
 
@@ -26,7 +29,9 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     if (phone.length != 10) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Enter a valid 10-digit mobile number.'),
+          content: Text(
+            'Enter a valid 10-digit mobile number.',
+          ),
         ),
       );
       return;
@@ -43,6 +48,11 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
     if (!mounted) {
       return;
     }
+
+    // Save phone number in central registration state.
+    context.read<RegistrationState>().update(
+          phoneNumber: phone,
+        );
 
     setState(() {
       _isLoading = false;
@@ -76,7 +86,8 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 28),
 
@@ -124,19 +135,22 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE5E7EB),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE5E7EB),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius:
+                        BorderRadius.circular(14),
                     borderSide: const BorderSide(
                       color: Color(0xFFE86100),
                       width: 2,
@@ -151,20 +165,25 @@ class _PhoneLoginScreenState extends State<PhoneLoginScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: const Color(0xFFFFC7A3),
+                    disabledBackgroundColor:
+                        const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
