@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'documents_screen.dart';
 
 class ExperienceScreen extends StatefulWidget {
   const ExperienceScreen({super.key});
 
   @override
-  State<ExperienceScreen> createState() => _ExperienceScreenState();
+  State<ExperienceScreen> createState() =>
+      _ExperienceScreenState();
 }
 
 class _ExperienceScreenState extends State<ExperienceScreen> {
@@ -42,10 +45,14 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
   }
 
   Future<void> _continue() async {
-    if (_selectedExperience == null) {
+    final experience = _selectedExperience;
+
+    if (experience == null) {
       _showMessage('Select your experience level.');
       return;
     }
+
+    final details = _detailsController.text.trim();
 
     setState(() {
       _isLoading = true;
@@ -59,6 +66,13 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
       return;
     }
 
+    context.read<RegistrationState>().update(
+          experienceLevel: experience,
+          experienceDetails: details,
+          dogHandling: _dogHandling,
+          petCare: _petCare,
+        );
+
     setState(() {
       _isLoading = false;
     });
@@ -66,6 +80,35 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => const DocumentsScreen(),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration({
+    required String hintText,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE5E7EB),
+        ),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE5E7EB),
+        ),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(14),
+        borderSide: const BorderSide(
+          color: Color(0xFFE86100),
+          width: 2,
+        ),
       ),
     );
   }
@@ -89,7 +132,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
             children: [
               const Text(
                 'Tell us about your experience',
@@ -122,29 +166,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
 
               DropdownButtonFormField<String>(
                 initialValue: _selectedExperience,
-                decoration: InputDecoration(
+                decoration: _inputDecoration(
                   hintText: 'Select experience level',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE86100),
-                      width: 2,
-                    ),
-                  ),
                 ),
                 items: _experienceOptions.map(
                   (experience) {
@@ -176,31 +199,11 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
               TextField(
                 controller: _detailsController,
                 maxLines: 4,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: InputDecoration(
+                textCapitalization:
+                    TextCapitalization.sentences,
+                decoration: _inputDecoration(
                   hintText:
                       'Tell us about your experience with dogs or pets',
-                  filled: true,
-                  fillColor: Colors.white,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE5E7EB),
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFE86100),
-                      width: 2,
-                    ),
-                  ),
                 ),
               ),
 
@@ -209,7 +212,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
-                  borderRadius: BorderRadius.circular(14),
+                  borderRadius:
+                      BorderRadius.circular(14),
                   border: Border.all(
                     color: const Color(0xFFE5E7EB),
                   ),
@@ -218,7 +222,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                   children: [
                     SwitchListTile(
                       value: _dogHandling,
-                      activeThumbColor: const Color(0xFFE86100),
+                      activeThumbColor:
+                          const Color(0xFFE86100),
                       title: const Text(
                         'Dog handling experience',
                         style: TextStyle(
@@ -246,7 +251,8 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                     ),
                     SwitchListTile(
                       value: _petCare,
-                      activeThumbColor: const Color(0xFFE86100),
+                      activeThumbColor:
+                          const Color(0xFFE86100),
                       title: const Text(
                         'Pet care experience',
                         style: TextStyle(
@@ -278,21 +284,25 @@ class _ExperienceScreenState extends State<ExperienceScreen> {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
