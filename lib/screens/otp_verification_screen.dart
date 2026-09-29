@@ -1,13 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'basic_profile_screen.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   final String phoneNumber;
+  final String verificationId;
 
   const OtpVerificationScreen({
     super.key,
     required this.phoneNumber,
+    required this.verificationId,
   });
 
   @override
@@ -31,7 +35,7 @@ class _OtpVerificationScreenState
   Future<void> _verifyOtp() async {
     final otp = _otpController.text.trim();
 
-    if (otp.length != 6) {
+    if (!RegExp(r'^\d{6}$').hasMatch(otp)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Enter the 6-digit OTP.'),
@@ -44,25 +48,85 @@ class _OtpVerificationScreenState
       _isLoading = true;
     });
 
-    await Future<void>.delayed(
-      const Duration(milliseconds: 500),
-    );
+    try {
+      final credential = PhoneAuthProvider.credential(
+        verificationId: widget.verificationId,
+        smsCode: otp,
+      );
 
-    if (!mounted) {
-      return;
-    }
+      await FirebaseAuth.instance.signInWithCredential(
+        credential,
+      );
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (!mounted) {
+        return;
+      }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BasicProfileScreen(
-          phoneNumber: widget.phoneNumber,
+      setState(() {
+        _isLoading = false;
+      });
+
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => BasicProfileScreen(
+            phoneNumber: widget.phoneNumber,
+          ),
         ),
-      ),
-    );
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      String message = 'OTP verification failed.';
+
+      switch (error.code) {
+        case 'invalid-verification-code':
+          message = 'The OTP is incorrect. Please try again.';
+          break;
+        case 'session-expired':
+          message =
+              'The OTP has expired. Please request a new OTP.';
+          break;
+        case 'invalid-verification-id':
+          message =
+              'OTP session expired. Please go back and request a new OTP.';
+          break;
+        case 'credential-already-in-use':
+          message =
+              'This mobile number is already registered.';
+          break;
+        default:
+          if (error.message != null &&
+              error.message!.trim().isNotEmpty) {
+            message = error.message!;
+          }
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message)),
+      );
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Something went wrong. Please try again.',
+          ),
+        ),
+      );
+    }
   }
 
   void _changeNumber() {
@@ -91,7 +155,6 @@ class _OtpVerificationScreenState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 28),
-
               const Text(
                 'Enter verification code',
                 style: TextStyle(
@@ -100,9 +163,7 @@ class _OtpVerificationScreenState
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 'Enter the 6-digit code sent to +91 ${widget.phoneNumber}.',
                 style: const TextStyle(
@@ -111,9 +172,7 @@ class _OtpVerificationScreenState
                   color: Color(0xFF4B5563),
                 ),
               ),
-
               const SizedBox(height: 32),
-
               const Text(
                 'OTP',
                 style: TextStyle(
@@ -122,13 +181,14 @@ class _OtpVerificationScreenState
                   color: Color(0xFF171717),
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _otpController,
                 keyboardType: TextInputType.number,
                 maxLength: 6,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 24,
@@ -161,9 +221,7 @@ class _OtpVerificationScreenState
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
@@ -196,12 +254,10 @@ class _OtpVerificationScreenState
                         ),
                 ),
               ),
-
               const SizedBox(height: 18),
-
               Center(
                 child: TextButton(
-                  onPressed: _changeNumber,
+                  onPressed: _isLoading ? null : _changeNumber,
                   child: const Text(
                     'Change mobile number',
                     style: TextStyle(
@@ -211,12 +267,10 @@ class _OtpVerificationScreenState
                   ),
                 ),
               ),
-
               const SizedBox(height: 8),
-
               const Center(
                 child: Text(
-                  'Didn’t receive the code? Resend will be available after OTP setup.',
+                  'Didn’t receive the code? Please go back and try again.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 12,
