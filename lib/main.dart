@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'screens/phone_login_screen.dart';
+
 void main() {
   runApp(const DojoWalkerRegistrationApp());
 }
@@ -33,6 +35,14 @@ class DojoWalkerRegistrationApp extends StatelessWidget {
 
 class RegistrationHomeScreen extends StatelessWidget {
   const RegistrationHomeScreen({super.key});
+
+  void _startRegistration(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const PhoneLoginScreen(),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +89,9 @@ class RegistrationHomeScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    _startRegistration(context);
+                  },
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
