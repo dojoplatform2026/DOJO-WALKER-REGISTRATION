@@ -15,10 +15,13 @@ class AddressScreen extends StatefulWidget {
 class _AddressScreenState extends State<AddressScreen> {
   final TextEditingController _addressController =
       TextEditingController();
+
   final TextEditingController _areaController =
       TextEditingController();
+
   final TextEditingController _cityController =
       TextEditingController();
+
   final TextEditingController _pincodeController =
       TextEditingController();
 
@@ -96,13 +99,28 @@ class _AddressScreenState extends State<AddressScreen> {
       return;
     }
 
+    if (address.length < 5) {
+      _showMessage('Enter a more complete address.');
+      return;
+    }
+
     if (area.isEmpty) {
       _showMessage('Enter your area or locality.');
       return;
     }
 
+    if (area.length < 2) {
+      _showMessage('Enter a valid area or locality.');
+      return;
+    }
+
     if (city.isEmpty) {
       _showMessage('Enter your city.');
+      return;
+    }
+
+    if (city.length < 2) {
+      _showMessage('Enter a valid city.');
       return;
     }
 
@@ -216,7 +234,9 @@ class _AddressScreenState extends State<AddressScreen> {
                   color: Color(0xFF171717),
                 ),
               ),
+
               const SizedBox(height: 12),
+
               const Text(
                 'Your address helps us understand your service area and assign suitable Dojo Walk zones.',
                 style: TextStyle(
@@ -225,40 +245,61 @@ class _AddressScreenState extends State<AddressScreen> {
                   color: Color(0xFF4B5563),
                 ),
               ),
+
               const SizedBox(height: 32),
+
               _label('Complete address'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _addressController,
                 maxLines: 3,
-                textCapitalization: TextCapitalization.sentences,
+                textCapitalization:
+                    TextCapitalization.sentences,
                 decoration: _inputDecoration(
-                  hintText: 'House / flat, street, landmark',
+                  hintText:
+                      'House / flat, street, landmark',
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label('Area / Locality'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _areaController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
-                  hintText: 'Enter your area or locality',
+                  hintText:
+                      'Enter your area or locality',
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label('City'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _cityController,
-                textCapitalization: TextCapitalization.words,
+                textCapitalization:
+                    TextCapitalization.words,
                 decoration: _inputDecoration(
                   hintText: 'Enter your city',
                 ),
               ),
+
               const SizedBox(height: 22),
+
               _label('State'),
+
               const SizedBox(height: 8),
+
               DropdownButtonFormField<String>(
                 initialValue: _selectedState,
                 decoration: _inputDecoration(
@@ -276,9 +317,13 @@ class _AddressScreenState extends State<AddressScreen> {
                   });
                 },
               ),
+
               const SizedBox(height: 22),
+
               _label('PIN code'),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _pincodeController,
                 keyboardType: TextInputType.number,
@@ -292,26 +337,32 @@ class _AddressScreenState extends State<AddressScreen> {
                   counterText: '',
                 ),
               ),
+
               const SizedBox(height: 32),
+
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed: _isLoading ? null : _continue,
+                  onPressed:
+                      _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor: const Color(0xFFE86100),
+                    backgroundColor:
+                        const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(14),
+                      borderRadius:
+                          BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(
+                          child:
+                              CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
