@@ -1,190 +1,183 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../state/registration_state.dart';
 import 'emergency_contact_screen.dart';
 
 class AvailabilityScreen extends StatefulWidget {
   const AvailabilityScreen({super.key});
 
   @override
-  State<AvailabilityScreen> createState() => _AvailabilityScreenState();
+  State<AvailabilityScreen> createState() =>
+      _AvailabilityScreenState();
 }
 
-class _AvailabilityScreenState extends State<AvailabilityScreen> {
-  String? _workType;
-
-  bool _morningSelected = false;
-  bool _eveningSelected = false;
-
-  final Set<String> _selectedDays = {};
-
-  bool _monthlyWalk = true;
-  bool _temporaryWalk = true;
-  bool _instaWalk = false;
-
-  TimeOfDay _morningStart = const TimeOfDay(
-    hour: 6,
-    minute: 0,
-  );
-
-  TimeOfDay _morningEnd = const TimeOfDay(
-    hour: 10,
-    minute: 0,
-  );
-
-  TimeOfDay _eveningStart = const TimeOfDay(
-    hour: 17,
-    minute: 0,
-  );
-
-  TimeOfDay _eveningEnd = const TimeOfDay(
-    hour: 21,
-    minute: 0,
-  );
-
-  bool _isLoading = false;
-
-  final List<String> _days = const [
-    'Mon',
-    'Tue',
-    'Wed',
-    'Thu',
-    'Fri',
-    'Sat',
-    'Sun',
+class _AvailabilityScreenState
+    extends State<AvailabilityScreen> {
+  final List<String> _morningSlots = const [
+    '05:00 - 09:00',
+    '06:00 - 10:00',
+    '07:00 - 11:00',
   ];
+
+  final List<String> _eveningSlots = const [
+    '16:00 - 20:00',
+    '17:00 - 21:00',
+    '18:00 - 22:00',
+  ];
+
+  final List<String> _walkTypes = const [
+    'monthlyWalk',
+    'temporaryWalk',
+    'instaWalk',
+  ];
+
+  String _workType = '';
+  String _selectedShift = '';
+
+  final List<String> _selectedMorningSlots = [];
+  final List<String> _selectedEveningSlots = [];
+  final List<String> _selectedWalkTypes = [];
+
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _workType = data.workType;
+
+    _selectedShift = data.shifts.isNotEmpty
+        ? data.shifts.first
+        : '';
+
+    _selectedMorningSlots.addAll(data.morningSlots);
+    _selectedEveningSlots.addAll(data.eveningSlots);
+    _selectedWalkTypes.addAll(data.walkTypes);
+
+    if (_selectedWalkTypes.isEmpty) {
+      _selectedWalkTypes.add('monthlyWalk');
+      _selectedWalkTypes.add('temporaryWalk');
+    }
+  }
+
+  bool get _isPartTime => _workType == 'partTime';
+
+  bool get _isFullTime => _workType == 'fullTime';
 
   void _selectWorkType(String type) {
     setState(() {
       _workType = type;
 
-      if (type == 'Part-time') {
-        _morningSelected = false;
-        _eveningSelected = false;
+      if (type == 'partTime') {
+        _selectedShift = '';
+        _selectedMorningSlots.clear();
+        _selectedEveningSlots.clear();
       } else {
-        _morningSelected = true;
-        _eveningSelected = true;
+        _selectedShift = 'both';
       }
     });
   }
 
   void _selectPartTimeShift(String shift) {
     setState(() {
-      if (shift == 'Morning') {
-        _morningSelected = true;
-        _eveningSelected = false;
+      _selectedShift = shift;
+
+      if (shift == 'morning') {
+        _selectedEveningSlots.clear();
       } else {
-        _morningSelected = false;
-        _eveningSelected = true;
+        _selectedMorningSlots.clear();
       }
     });
   }
 
-  Future<void> _selectTime({
-    required bool morning,
-    required bool start,
-  }) async {
-    final currentTime = morning
-        ? (start ? _morningStart : _morningEnd)
-        : (start ? _eveningStart : _eveningEnd);
-
-    final selected = await showTimePicker(
-      context: context,
-      initialTime: currentTime,
-    );
-
-    if (selected == null || !mounted) {
-      return;
-    }
-
+  void _toggleMorningSlot(String slot) {
     setState(() {
-      if (morning) {
-        if (start) {
-          _morningStart = selected;
-        } else {
-          _morningEnd = selected;
-        }
+      if (_selectedMorningSlots.contains(slot)) {
+        _selectedMorningSlots.remove(slot);
       } else {
-        if (start) {
-          _eveningStart = selected;
-        } else {
-          _eveningEnd = selected;
-        }
+        _selectedMorningSlots.add(slot);
       }
     });
   }
 
-  String _formatTime(TimeOfDay time) {
-    final hour = time.hourOfPeriod == 0 ? 12 : time.hourOfPeriod;
-    final minute = time.minute.toString().padLeft(2, '0');
-    final period = time.period == DayPeriod.am ? 'AM' : 'PM';
-
-    return '$hour:$minute $period';
+  void _toggleEveningSlot(String slot) {
+    setState(() {
+      if (_selectedEveningSlots.contains(slot)) {
+        _selectedEveningSlots.remove(slot);
+      } else {
+        _selectedEveningSlots.add(slot);
+      }
+    });
   }
 
-  bool _isTimeBefore(
-    TimeOfDay first,
-    TimeOfDay second,
-  ) {
-    final firstMinutes = first.hour * 60 + first.minute;
-    final secondMinutes = second.hour * 60 + second.minute;
-
-    return firstMinutes < secondMinutes;
+  void _toggleWalkType(String type) {
+    setState(() {
+      if (_selectedWalkTypes.contains(type)) {
+        _selectedWalkTypes.remove(type);
+      } else {
+        _selectedWalkTypes.add(type);
+      }
+    });
   }
 
-  Future<void> _continue() async {
-    if (_workType == null) {
-      _showMessage('Select Part-time or Full-time.');
-      return;
+  bool _validate() {
+    if (_workType.isEmpty) {
+      _showMessage('Please select Part-time or Full-time.');
+      return false;
     }
 
-    if (!_morningSelected && !_eveningSelected) {
-      _showMessage('Select at least one shift.');
-      return;
+    if (_isPartTime) {
+      if (_selectedShift.isEmpty) {
+        _showMessage(
+          'Please select Morning or Evening.',
+        );
+        return false;
+      }
+
+      if (_selectedShift == 'morning' &&
+          _selectedMorningSlots.isEmpty) {
+        _showMessage(
+          'Please select at least one morning slot.',
+        );
+        return false;
+      }
+
+      if (_selectedShift == 'evening' &&
+          _selectedEveningSlots.isEmpty) {
+        _showMessage(
+          'Please select at least one evening slot.',
+        );
+        return false;
+      }
     }
 
-    if (_selectedDays.isEmpty) {
-      _showMessage('Select at least one available day.');
-      return;
+    if (_isFullTime) {
+      if (_selectedMorningSlots.isEmpty) {
+        _showMessage(
+          'Please select at least one morning slot.',
+        );
+        return false;
+      }
+
+      if (_selectedEveningSlots.isEmpty) {
+        _showMessage(
+          'Please select at least one evening slot.',
+        );
+        return false;
+      }
     }
 
-    if (_morningSelected &&
-        !_isTimeBefore(_morningStart, _morningEnd)) {
-      _showMessage('Check your morning availability time.');
-      return;
+    if (_selectedWalkTypes.isEmpty) {
+      _showMessage(
+        'Please select at least one walk type.',
+      );
+      return false;
     }
 
-    if (_eveningSelected &&
-        !_isTimeBefore(_eveningStart, _eveningEnd)) {
-      _showMessage('Check your evening availability time.');
-      return;
-    }
-
-    if (!_monthlyWalk && !_temporaryWalk && !_instaWalk) {
-      _showMessage('Select at least one walk type.');
-      return;
-    }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    await Future<void>.delayed(
-      const Duration(milliseconds: 500),
-    );
-
-    if (!mounted) {
-      return;
-    }
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => const EmergencyContactScreen(),
-      ),
-    );
+    return true;
   }
 
   void _showMessage(String message) {
@@ -195,269 +188,323 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
     );
   }
 
-  Widget _sectionTitle(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 17,
-        fontWeight: FontWeight.w800,
-        color: Color(0xFF171717),
+  Future<void> _continue() async {
+    if (!_validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    await Future<void>.delayed(
+      const Duration(milliseconds: 500),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    final shifts = <String>[];
+
+    if (_selectedMorningSlots.isNotEmpty) {
+      shifts.add('morning');
+    }
+
+    if (_selectedEveningSlots.isNotEmpty) {
+      shifts.add('evening');
+    }
+
+    String morningStart = '';
+    String morningEnd = '';
+
+    String eveningStart = '';
+    String eveningEnd = '';
+
+    if (_selectedMorningSlots.isNotEmpty) {
+      final firstSlot = _selectedMorningSlots.first;
+      final parts = firstSlot.split(' - ');
+
+      if (parts.length == 2) {
+        morningStart = parts[0];
+        morningEnd = parts[1];
+      }
+    }
+
+    if (_selectedEveningSlots.isNotEmpty) {
+      final firstSlot = _selectedEveningSlots.first;
+      final parts = firstSlot.split(' - ');
+
+      if (parts.length == 2) {
+        eveningStart = parts[0];
+        eveningEnd = parts[1];
+      }
+    }
+
+    context.read<RegistrationState>().update(
+          workType: _workType,
+          shifts: shifts,
+          availableDays: const [],
+          morningSlots:
+              List<String>.from(_selectedMorningSlots),
+          eveningSlots:
+              List<String>.from(_selectedEveningSlots),
+          morningStartTime: morningStart,
+          morningEndTime: morningEnd,
+          eveningStartTime: eveningStart,
+          eveningEndTime: eveningEnd,
+          walkTypes:
+              List<String>.from(_selectedWalkTypes),
+        );
+
+    setState(() {
+      _isSaving = false;
+    });
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const EmergencyContactScreen(),
       ),
     );
   }
 
+  String _walkTypeLabel(String type) {
+    switch (type) {
+      case 'monthlyWalk':
+        return 'Monthly Walk — Permanent';
+      case 'temporaryWalk':
+        return 'Temporary Walk';
+      case 'instaWalk':
+        return 'Insta Walk';
+      default:
+        return type;
+    }
+  }
+
   Widget _workTypeCard({
+    required String value,
     required String title,
     required String subtitle,
   }) {
-    final selected = _workType == title;
+    final selected = _workType == value;
 
-    return Expanded(
-      child: InkWell(
-        onTap: () {
-          _selectWorkType(title);
-        },
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
+    return InkWell(
+      onTap: () {
+        _selectWorkType(value);
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: selected
+              ? const Color(0xFFFFF1E8)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
             color: selected
-                ? const Color(0xFFFFF1E8)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
+                ? const Color(0xFFE86100)
+                : const Color(0xFFE5E7EB),
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_off,
               color: selected
                   ? const Color(0xFFE86100)
-                  : const Color(0xFFE5E7EB),
-              width: selected ? 2 : 1,
+                  : const Color(0xFF9CA3AF),
             ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                title == 'Part-time'
-                    ? Icons.schedule_outlined
-                    : Icons.work_history_outlined,
-                color: const Color(0xFFE86100),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment:
+                    CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF171717),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      height: 1.4,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w800,
-                  color: Color(0xFF171717),
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  fontSize: 12,
-                  height: 1.4,
-                  color: Color(0xFF6B7280),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
   Widget _shiftCard({
+    required String value,
     required String title,
     required String subtitle,
-    required bool selected,
-    required VoidCallback onTap,
   }) {
-    return Expanded(
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
+    final selected = _selectedShift == value;
+
+    return InkWell(
+      onTap: () {
+        _selectPartTimeShift(value);
+      },
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: selected
+              ? const Color(0xFFFFF1E8)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
             color: selected
-                ? const Color(0xFFFFF1E8)
-                : Colors.white,
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
+                ? const Color(0xFFE86100)
+                : const Color(0xFFE5E7EB),
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.check_circle
+                  : Icons.circle_outlined,
               color: selected
                   ? const Color(0xFFE86100)
-                  : const Color(0xFFE5E7EB),
-              width: selected ? 2 : 1,
+                  : const Color(0xFF9CA3AF),
             ),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                title == 'Morning'
-                    ? Icons.wb_sunny_outlined
-                    : Icons.nights_stay_outlined,
-                color: const Color(0xFFE86100),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w800,
-                        color: Color(0xFF171717),
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
-              ),
-              Icon(
-                selected
-                    ? Icons.check_circle
-                    : Icons.radio_button_unchecked,
-                color: selected
-                    ? const Color(0xFFE86100)
-                    : const Color(0xFF9CA3AF),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _timeSelector({
-    required String title,
-    required TimeOfDay start,
-    required TimeOfDay end,
-    required bool morning,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF171717),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    _selectTime(
-                      morning: morning,
-                      start: true,
-                    );
-                  },
-                  child: Text(_formatTime(start)),
-                ),
-              ),
-              const Padding(
-                padding:
-                    EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  'to',
-                  style: TextStyle(
+                const SizedBox(height: 3),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    fontSize: 12,
                     color: Color(0xFF6B7280),
                   ),
                 ),
-              ),
-              Expanded(
-                child: OutlinedButton(
-                  onPressed: () {
-                    _selectTime(
-                      morning: morning,
-                      start: false,
-                    );
-                  },
-                  child: Text(_formatTime(end)),
-                ),
-              ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _walkTypeTile({
-    required String title,
-    required String subtitle,
-    required bool value,
-    required ValueChanged<bool> onChanged,
+  Widget _slotCard({
+    required String slot,
+    required bool selected,
+    required VoidCallback onTap,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: const Color(0xFFE5E7EB),
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 14,
+        ),
+        decoration: BoxDecoration(
+          color: selected
+              ? const Color(0xFFFFF1E8)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected
+                ? const Color(0xFFE86100)
+                : const Color(0xFFE5E7EB),
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              selected
+                  ? Icons.check_box
+                  : Icons.check_box_outline_blank,
+              color: selected
+                  ? const Color(0xFFE86100)
+                  : const Color(0xFF9CA3AF),
+            ),
+            const SizedBox(width: 12),
+            Text(
+              slot,
+              style: const TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF171717),
+              ),
+            ),
+            const Spacer(),
+            const Text(
+              '4 hours',
+              style: TextStyle(
+                fontSize: 12,
+                color: Color(0xFF6B7280),
+              ),
+            ),
+          ],
         ),
       ),
-      child: CheckboxListTile(
-        value: value,
-        onChanged: (newValue) {
-          onChanged(newValue ?? false);
-        },
-        activeColor: const Color(0xFFE86100),
-        title: Text(
+    );
+  }
+
+  Widget _sectionTitle(
+    String title,
+    String subtitle,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
           title,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 17,
             fontWeight: FontWeight.w800,
             color: Color(0xFF171717),
           ),
         ),
-        subtitle: Text(
+        const SizedBox(height: 4),
+        Text(
           subtitle,
           style: const TextStyle(
-            fontSize: 11,
+            fontSize: 13,
             height: 1.4,
             color: Color(0xFF6B7280),
           ),
         ),
-        controlAffinity:
-            ListTileControlAffinity.leading,
-      ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        foregroundColor: const Color(0xFF171717),
-        elevation: 0,
         title: const Text(
           'Availability',
           style: TextStyle(
@@ -467,222 +514,271 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(20),
           child: Column(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
               const Text(
-                'Set your work availability',
+                'Your Availability',
                 style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.w800,
                   color: Color(0xFF171717),
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 8),
               const Text(
-                'Tell us when you are available so we can match you with suitable walks.',
+                'Choose the work schedule you can commit to. '
+                'Every selected slot is fixed for 4 hours.',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 15,
                   height: 1.5,
-                  color: Color(0xFF4B5563),
+                  color: Color(0xFF6B7280),
                 ),
               ),
-              const SizedBox(height: 30),
 
-              _sectionTitle('1. Work type'),
-              const SizedBox(height: 12),
+              const SizedBox(height: 28),
 
-              Row(
-                children: [
-                  _workTypeCard(
-                    title: 'Part-time',
-                    subtitle:
-                        'Choose one shift: morning or evening.',
-                  ),
-                  const SizedBox(width: 12),
-                  _workTypeCard(
-                    title: 'Full-time',
-                    subtitle:
-                        'Available for both morning and evening.',
-                  ),
-                ],
+              _sectionTitle(
+                'Work Type',
+                'Choose whether you want to work part-time or full-time.',
               ),
 
-              const SizedBox(height: 30),
-
-              _sectionTitle('2. Shift'),
               const SizedBox(height: 12),
 
-              Row(
-                children: [
-                  _shiftCard(
-                    title: 'Morning',
-                    subtitle:
-                        '06:00 AM – 10:00 AM',
-                    selected: _morningSelected,
-                    onTap: () {
-                      if (_workType == 'Part-time') {
-                        _selectPartTimeShift(
-                          'Morning',
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(width: 12),
-                  _shiftCard(
-                    title: 'Evening',
-                    subtitle:
-                        '05:00 PM – 09:00 PM',
-                    selected: _eveningSelected,
-                    onTap: () {
-                      if (_workType == 'Part-time') {
-                        _selectPartTimeShift(
-                          'Evening',
-                        );
-                      }
-                    },
-                  ),
-                ],
+              _workTypeCard(
+                value: 'partTime',
+                title: 'Part-time',
+                subtitle:
+                    'Choose Morning or Evening.',
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 10),
 
-              _sectionTitle('3. Available days'),
-              const SizedBox(height: 12),
-
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _days.map(
-                  (day) {
-                    final selected =
-                        _selectedDays.contains(day);
-
-                    return FilterChip(
-                      label: Text(day),
-                      selected: selected,
-                      selectedColor:
-                          const Color(0xFFFFF1E8),
-                      checkmarkColor:
-                          const Color(0xFFE86100),
-                      side: BorderSide(
-                        color: selected
-                            ? const Color(0xFFE86100)
-                            : const Color(0xFFE5E7EB),
-                      ),
-                      onSelected: (value) {
-                        setState(() {
-                          if (value) {
-                            _selectedDays.add(day);
-                          } else {
-                            _selectedDays.remove(day);
-                          }
-                        });
-                      },
-                    );
-                  },
-                ).toList(),
+              _workTypeCard(
+                value: 'fullTime',
+                title: 'Full-time',
+                subtitle:
+                    'Morning and Evening are both required.',
               ),
 
-              const SizedBox(height: 30),
+              if (_isPartTime) ...[
+                const SizedBox(height: 28),
 
-              _sectionTitle('4. Working hours'),
-              const SizedBox(height: 12),
-
-              if (_morningSelected)
-                _timeSelector(
-                  title: 'Morning availability',
-                  start: _morningStart,
-                  end: _morningEnd,
-                  morning: true,
+                _sectionTitle(
+                  'Choose Shift',
+                  'Select one shift for part-time work.',
                 ),
 
-              if (_morningSelected &&
-                  _eveningSelected)
                 const SizedBox(height: 12),
 
-              if (_eveningSelected)
-                _timeSelector(
-                  title: 'Evening availability',
-                  start: _eveningStart,
-                  end: _eveningEnd,
-                  morning: false,
-                ),
-
-              const SizedBox(height: 30),
-
-              _sectionTitle('5. Walk types'),
-              const SizedBox(height: 12),
-
-              _walkTypeTile(
-                title:
-                    'Monthly Walk — Permanent',
-                subtitle:
-                    'For recurring monthly owner bookings and long-term assignments.',
-                value: _monthlyWalk,
-                onChanged: (value) {
-                  setState(() {
-                    _monthlyWalk = value;
-                  });
-                },
-              ),
-
-              _walkTypeTile(
-                title: 'Temporary Walk',
-                subtitle:
-                    'For short-term or limited-period walk assignments.',
-                value: _temporaryWalk,
-                onChanged: (value) {
-                  setState(() {
-                    _temporaryWalk = value;
-                  });
-                },
-              ),
-
-              _walkTypeTile(
-                title: 'Insta Walk',
-                subtitle:
-                    'For on-demand or scheduled instant walk requests.',
-                value: _instaWalk,
-                onChanged: (value) {
-                  setState(() {
-                    _instaWalk = value;
-                  });
-                },
-              ),
-
-              const SizedBox(height: 22),
-
-              Container(
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF1E8),
-                  borderRadius:
-                      BorderRadius.circular(14),
-                ),
-                child: const Row(
-                  crossAxisAlignment:
-                      CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Icon(
-                      Icons.info_outline,
-                      size: 20,
-                      color: Color(0xFFE86100),
-                    ),
-                    SizedBox(width: 10),
                     Expanded(
-                      child: Text(
-                        'Your availability does not guarantee a walk assignment. Assignments will depend on zone, owner requirements, schedule, and verification status.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          height: 1.5,
-                          color: Color(0xFF4B5563),
-                        ),
+                      child: _shiftCard(
+                        value: 'morning',
+                        title: 'Morning',
+                        subtitle: '5 AM – 11 AM',
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _shiftCard(
+                        value: 'evening',
+                        title: 'Evening',
+                        subtitle: '4 PM – 10 PM',
                       ),
                     ),
                   ],
+                ),
+              ],
+
+              if (_isPartTime &&
+                  _selectedShift == 'morning') ...[
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Morning Slots',
+                  'Choose the 4-hour slots you can work.',
+                ),
+
+                const SizedBox(height: 12),
+
+                ..._morningSlots.map(
+                  (slot) => _slotCard(
+                    slot: slot,
+                    selected:
+                        _selectedMorningSlots.contains(
+                      slot,
+                    ),
+                    onTap: () {
+                      _toggleMorningSlot(slot);
+                    },
+                  ),
+                ),
+              ],
+
+              if (_isPartTime &&
+                  _selectedShift == 'evening') ...[
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Evening Slots',
+                  'Choose the 4-hour slots you can work.',
+                ),
+
+                const SizedBox(height: 12),
+
+                ..._eveningSlots.map(
+                  (slot) => _slotCard(
+                    slot: slot,
+                    selected:
+                        _selectedEveningSlots.contains(
+                      slot,
+                    ),
+                    onTap: () {
+                      _toggleEveningSlot(slot);
+                    },
+                  ),
+                ),
+              ],
+
+              if (_isFullTime) ...[
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Morning Slots',
+                  'Select the morning slots you can work.',
+                ),
+
+                const SizedBox(height: 12),
+
+                ..._morningSlots.map(
+                  (slot) => _slotCard(
+                    slot: slot,
+                    selected:
+                        _selectedMorningSlots.contains(
+                      slot,
+                    ),
+                    onTap: () {
+                      _toggleMorningSlot(slot);
+                    },
+                  ),
+                ),
+
+                const SizedBox(height: 18),
+
+                _sectionTitle(
+                  'Evening Slots',
+                  'Select the evening slots you can work.',
+                ),
+
+                const SizedBox(height: 12),
+
+                ..._eveningSlots.map(
+                  (slot) => _slotCard(
+                    slot: slot,
+                    selected:
+                        _selectedEveningSlots.contains(
+                      slot,
+                    ),
+                    onTap: () {
+                      _toggleEveningSlot(slot);
+                    },
+                  ),
+                ),
+              ],
+
+              if (_workType.isNotEmpty) ...[
+                const SizedBox(height: 28),
+
+                _sectionTitle(
+                  'Walk Types',
+                  'Choose the types of walks you are available for.',
+                ),
+
+                const SizedBox(height: 12),
+
+                ..._walkTypes.map(
+                  (type) {
+                    final selected =
+                        _selectedWalkTypes.contains(type);
+
+                    return InkWell(
+                      onTap: () {
+                        _toggleWalkType(type);
+                      },
+                      borderRadius:
+                          BorderRadius.circular(14),
+                      child: Container(
+                        margin:
+                            const EdgeInsets.only(
+                          bottom: 10,
+                        ),
+                        padding:
+                            const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: selected
+                              ? const Color(0xFFFFF1E8)
+                              : Colors.white,
+                          borderRadius:
+                              BorderRadius.circular(14),
+                          border: Border.all(
+                            color: selected
+                                ? const Color(0xFFE86100)
+                                : const Color(
+                                    0xFFE5E7EB,
+                                  ),
+                            width:
+                                selected ? 1.5 : 1,
+                          ),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              selected
+                                  ? Icons.check_box
+                                  : Icons
+                                      .check_box_outline_blank,
+                              color: selected
+                                  ? const Color(
+                                      0xFFE86100,
+                                    )
+                                  : const Color(
+                                      0xFF9CA3AF,
+                                    ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _walkTypeLabel(type),
+                                style:
+                                    const TextStyle(
+                                  fontSize: 15,
+                                  fontWeight:
+                                      FontWeight.w700,
+                                  color:
+                                      Color(0xFF171717),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+
+              const SizedBox(height: 22),
+
+              const Text(
+                'Your selected availability will be used by the system when matching work to your available time.',
+                style: TextStyle(
+                  fontSize: 12,
+                  height: 1.5,
+                  color: Color(0xFF6B7280),
                 ),
               ),
 
@@ -693,39 +789,41 @@ class _AvailabilityScreenState extends State<AvailabilityScreen> {
                 height: 54,
                 child: FilledButton(
                   onPressed:
-                      _isLoading ? null : _continue,
+                      _isSaving ? null : _continue,
                   style: FilledButton.styleFrom(
                     backgroundColor:
                         const Color(0xFFE86100),
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor:
-                        const Color(0xFFFFC7A3),
-                    shape:
-                        RoundedRectangleBorder(
+                    shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(14),
                     ),
                   ),
-                  child: _isLoading
+                  child: _isSaving
                       ? const SizedBox(
                           width: 22,
                           height: 22,
                           child:
                               CircularProgressIndicator(
                             strokeWidth: 2.5,
-                            color: Colors.white,
+                            valueColor:
+                                AlwaysStoppedAnimation<
+                                    Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       : const Text(
                           'Continue',
                           style: TextStyle(
                             fontSize: 16,
-                            fontWeight:
-                                FontWeight.w700,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                 ),
               ),
+
+              const SizedBox(height: 20),
             ],
           ),
         ),
