@@ -21,7 +21,23 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
   bool _isLoading = false;
   String? _loadingDocument;
 
+  @override
+  void initState() {
+    super.initState();
+
+    final data = context.read<RegistrationState>().data;
+
+    _aadhaarFrontAdded = data.aadhaarFrontAdded;
+    _aadhaarBackAdded = data.aadhaarBackAdded;
+    _panAdded = data.panAdded;
+    _profilePhotoAdded = data.profilePhotoAdded;
+  }
+
   Future<void> _addDocument(String document) async {
+    if (_loadingDocument != null) {
+      return;
+    }
+
     setState(() {
       _loadingDocument = document;
     });
@@ -52,6 +68,13 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
 
       _loadingDocument = null;
     });
+
+    context.read<RegistrationState>().update(
+          aadhaarFrontAdded: _aadhaarFrontAdded,
+          aadhaarBackAdded: _aadhaarBackAdded,
+          panAdded: _panAdded,
+          profilePhotoAdded: _profilePhotoAdded,
+        );
   }
 
   Future<void> _continue() async {
@@ -91,7 +114,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
       return;
     }
 
-    // Save document completion status in central state.
     context.read<RegistrationState>().update(
           aadhaarFrontAdded: _aadhaarFrontAdded,
           aadhaarBackAdded: _aadhaarBackAdded,
@@ -173,9 +195,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  added
-                      ? 'Document added'
-                      : description,
+                  added ? 'Document added' : description,
                   style: TextStyle(
                     fontSize: 12,
                     height: 1.4,
@@ -238,8 +258,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
           child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
                 'Upload your documents',
@@ -259,7 +278,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-
               const Text(
                 'Aadhaar Card',
                 style: TextStyle(
@@ -269,7 +287,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 ),
               ),
               const SizedBox(height: 12),
-
               _documentCard(
                 title: 'Aadhaar Front',
                 description:
@@ -278,7 +295,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 added: _aadhaarFrontAdded,
                 icon: Icons.badge_outlined,
               ),
-
               _documentCard(
                 title: 'Aadhaar Back',
                 description:
@@ -287,9 +303,7 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 added: _aadhaarBackAdded,
                 icon: Icons.badge_outlined,
               ),
-
               const SizedBox(height: 8),
-
               _documentCard(
                 title: 'PAN Card',
                 description:
@@ -298,7 +312,6 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 added: _panAdded,
                 icon: Icons.credit_card_outlined,
               ),
-
               _documentCard(
                 title: 'Profile Photo',
                 description:
@@ -307,15 +320,12 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                 added: _profilePhotoAdded,
                 icon: Icons.person_outline,
               ),
-
               const SizedBox(height: 8),
-
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
                   color: const Color(0xFFFFF1E8),
-                  borderRadius:
-                      BorderRadius.circular(14),
+                  borderRadius: BorderRadius.circular(14),
                 ),
                 child: const Row(
                   crossAxisAlignment:
@@ -340,32 +350,26 @@ class _DocumentsScreenState extends State<DocumentsScreen> {
                   ],
                 ),
               ),
-
               const SizedBox(height: 28),
-
               SizedBox(
                 width: double.infinity,
                 height: 54,
                 child: FilledButton(
-                  onPressed:
-                      _isLoading ? null : _continue,
+                  onPressed: _isLoading ? null : _continue,
                   style: FilledButton.styleFrom(
-                    backgroundColor:
-                        const Color(0xFFE86100),
+                    backgroundColor: const Color(0xFFE86100),
                     foregroundColor: Colors.white,
                     disabledBackgroundColor:
                         const Color(0xFFFFC7A3),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(14),
+                      borderRadius: BorderRadius.circular(14),
                     ),
                   ),
                   child: _isLoading
                       ? const SizedBox(
                           width: 22,
                           height: 22,
-                          child:
-                              CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2.5,
                             color: Colors.white,
                           ),
